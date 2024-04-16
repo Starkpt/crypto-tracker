@@ -1,5 +1,4 @@
 import {
-  Button,
   Link,
   Navbar,
   NavbarBrand,
@@ -8,13 +7,31 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import React from "react";
+
+type ICurrencyItem = {
+  id: number;
+  value: string;
+  label: string;
+  symbol: string;
+};
+
+const currencies: ICurrencyItem[] = [
+  { id: 0, value: "usd", label: "Dollar", symbol: "$" },
+  { id: 1, value: "eur", label: "Euro", symbol: "€" },
+];
 
 const menuItems = ["Trending", "Search"];
 
 export const NavigationBar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const [selectedCurrency, setSelectedCurrency] = React.useState<any>("eur");
+
+  console.log(selectedCurrency);
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -25,22 +42,44 @@ export const NavigationBar = () => {
         />
         <NavbarBrand>
           <p className="font-bold text-inherit">
-            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span> TRACKER
+            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span>{" "}
+            TRACKER
           </p>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link href="/" color="foreground">
             Trending
           </Link>
         </NavbarItem>
 
-        <NavbarItem isActive>
-          <Link href="#" aria-current="page">
+        <NavbarItem>
+          <Link href="/search" color="foreground">
             Search
           </Link>
+        </NavbarItem>
+      </NavbarContent>
+
+      <NavbarContent className="sm:flex w-32" justify="center">
+        <NavbarItem className="w-full">
+          <Select
+            aria-label="currency"
+            aria-labelledby="currency"
+            items={currencies}
+            className="w-full"
+            defaultSelectedKeys={[selectedCurrency]}
+            onSelectionChange={setSelectedCurrency}
+          >
+            {(item) => (
+              <SelectItem
+                key={item.id}
+                value={item.value}
+                title={`${item.symbol} ${item.label}`}
+              />
+            )}
+          </Select>
         </NavbarItem>
       </NavbarContent>
 
@@ -49,7 +88,11 @@ export const NavigationBar = () => {
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               color={
-                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
+                index === 2
+                  ? "primary"
+                  : index === menuItems.length - 1
+                  ? "danger"
+                  : "foreground"
               }
               className="w-full"
               href="#"

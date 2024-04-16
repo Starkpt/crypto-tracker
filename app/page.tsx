@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  Radio,
-  RadioGroup,
-  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -13,11 +10,9 @@ import {
 } from "@nextui-org/react";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { NavigationBar } from "./components/NavigationBar";
-
-const colors = ["default", "primary", "secondary", "success", "warning", "danger"];
 
 type ICoin = {
   id: string;
@@ -121,32 +116,55 @@ type ITrendingCoin = {
   };
 };
 
+type ITopCoin = {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  fully_diluted_valuation: number;
+  total_volume: number;
+  high_24h: number;
+  low_24h: number;
+  price_change_24h: number;
+  price_change_percentage_24h: number;
+  market_cap_change_24h: number;
+  market_cap_change_percentage_24h: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number;
+  ath: number;
+  ath_change_percentage: number;
+  ath_date: string;
+  atl: number;
+  atl_change_percentage: number;
+  atl_date: string;
+  roi: undefined | null;
+  last_updated: string;
+};
+
 type ICurrency = "$" | "€";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Home() {
-  const [selectedColor, setSelectedColor] = useState("default");
-
   const [currency, setCurrency] = useState<ICurrency>("€");
 
-  // const [coins, setCoins] = useState<ICoins>([]);
-  // const [coinsByPage, setCoinsByPage] = useState<ICoinsByPage>([]);
-  // const [trendingCoins, setTrendingCoins] = useState<ITrendingCoin[]>([]);
-  // const [trendingCoinsByPage, setTrendingCoinsByPage] = useState<ITrendingCoin[][]>([]);
-  const [marketCoins, setMarketCoins] = useState([]);
+  const [marketCoins, setMarketCoins] = useState<any[]>([]);
 
-  // const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  // const [page, setPage] = React.useState(1);
+  const { data, error, isLoading, isValidating } = useSWR<any[]>(
+    "/api/markets",
+    fetcher,
+    { refreshInterval: 60000 }
+  );
 
-  const { data, error, isLoading, isValidating } = useSWR<any[]>("/api/markets", fetcher, {
-    refreshInterval: 60000,
-  });
+  useMemo(() => setMarketCoins(data), [data]);
 
-  useEffect(() => {
-    console.table(data);
-    setMarketCoins(data);
-  }, [data]);
+  console.table(data);
+
+  console.log({ error, isLoading, isValidating });
 
   return (
     <>
@@ -155,47 +173,26 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="flex flex-col gap-3">
           <Table
-            color={selectedColor}
             selectionMode="single"
-            defaultSelectedKeys={["2"]}
-            aria-label="Example static collection table"
-            // bottomContent={
-            //   pages > 0 ? (
-            //     <div className="flex w-full justify-center">
-            //       <Pagination
-            //         isCompact
-            //         showControls
-            //         showShadow
-            //         color="primary"
-            //         page={page}
-            //         total={pages}
-            //         onChange={(page) => setPage(page)}
-            //       />
-            //     </div>
-            //   ) : null
-            // }
+            defaultSelectedKeys={["1"]}
+            aria-label="Top 5 crypto currencies"
           >
             <TableHeader>
               <TableColumn>#</TableColumn>
               <TableColumn>COIN</TableColumn>
               <TableColumn>CURRENT PRICE</TableColumn>
             </TableHeader>
-            <TableBody loadingContent={isLoading ?? <Spinner />}>
-              {/* {trendingCoinsByPage[page - 1]?.map((coin: ITrendingCoin, id: number) => (
-                <TableRow key={id}>
-                  <TableCell>{coin.item.id}</TableCell>
-                  <TableCell>{coin.item.name}</TableCell>
-                  <TableCell>{coin.item.symbol}</TableCell>
-                  <TableCell>
-                    {currency} {coin.item.data.price}
-                  </TableCell>
-                </TableRow>
-              ))} */}
+            <TableBody>
               {marketCoins?.map((coin: any, id: number) => (
                 <TableRow key={id}>
                   <TableCell>{coin.market_cap_rank}</TableCell>
                   <TableCell className="flex gap-2">
-                    <Image src={coin.image} alt={coin.name} width={25} height={25} />
+                    <Image
+                      src={coin.image}
+                      alt={coin.name}
+                      width={25}
+                      height={25}
+                    />
                     <p className="font-medium">{coin.name}</p>
                     <p className="text-metal uppercase">{coin.symbol}</p>
                   </TableCell>
@@ -206,18 +203,6 @@ export default function Home() {
               ))}
             </TableBody>
           </Table>
-          <RadioGroup
-            label="Selection color"
-            orientation="horizontal"
-            value={selectedColor}
-            onValueChange={setSelectedColor}
-          >
-            {colors.map((color) => (
-              <Radio key={color} color={color} value={color} className="capitalize">
-                {color}
-              </Radio>
-            ))}
-          </RadioGroup>
         </div>
       </main>
     </>
