@@ -9,19 +9,30 @@ import {
   NavbarMenuToggle,
   Select,
   SelectItem,
+  Selection,
 } from "@nextui-org/react";
 import React from "react";
 
 type ICurrencyItem = {
-  id: number;
+  // id: number;
   value: string;
   label: string;
   symbol: string;
 };
 
 const currencies: ICurrencyItem[] = [
-  { id: 0, value: "usd", label: "Dollar", symbol: "$" },
-  { id: 1, value: "eur", label: "Euro", symbol: "€" },
+  {
+    // id: 0,
+    value: "usd",
+    label: "Dollar",
+    symbol: "$",
+  },
+  {
+    // id: 1,
+    value: "eur",
+    label: "Euro",
+    symbol: "€",
+  },
 ];
 
 const menuItems = ["Trending", "Search"];
@@ -29,9 +40,7 @@ const menuItems = ["Trending", "Search"];
 export const NavigationBar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-  const [selectedCurrency, setSelectedCurrency] = React.useState<any>("eur");
-
-  console.log(selectedCurrency);
+  const [selectedCurrency, setSelectedCurrency] = React.useState<Selection>(new Set(["eur"]));
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -42,8 +51,7 @@ export const NavigationBar = () => {
         />
         <NavbarBrand>
           <p className="font-bold text-inherit">
-            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span>{" "}
-            TRACKER
+            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span> TRACKER
           </p>
         </NavbarBrand>
       </NavbarContent>
@@ -69,12 +77,12 @@ export const NavigationBar = () => {
             aria-labelledby="currency"
             items={currencies}
             className="w-full"
-            defaultSelectedKeys={[selectedCurrency]}
+            selectedKeys={selectedCurrency}
             onSelectionChange={setSelectedCurrency}
           >
             {(item) => (
               <SelectItem
-                key={item.id}
+                key={item.value}
                 value={item.value}
                 title={`${item.symbol} ${item.label}`}
               />
@@ -88,11 +96,7 @@ export const NavigationBar = () => {
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               color={
-                index === 2
-                  ? "primary"
-                  : index === menuItems.length - 1
-                  ? "danger"
-                  : "foreground"
+                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
               }
               className="w-full"
               href="#"
