@@ -8,13 +8,14 @@ const options = {
   next: { revalidate: 10 },
 };
 
-export async function GET() {
-  const res = await fetch(
-    `${baseURL}?vs_currency=eur&order=market_cap_rank_desc&per_page=5`,
-    options
-  );
+export async function GET(request: Request) {
+  const searchParams = request.url.search;
+
+  const res = await fetch(`${baseURL}?${searchParams}`, options);
 
   const data = await res.json();
+
+  console.log({ res, data });
 
   return Response.json(data);
 }

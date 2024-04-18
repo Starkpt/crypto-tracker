@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Link,
   Navbar,
@@ -8,33 +10,48 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from "@nextui-org/react";
+import { useState } from "react";
 
 const menuItems = ["Trending", "Search"];
 
-export type ICurrencyItem = {
-  // id: number;
+export type ICurrencySymbol = "$" | "€" | string;
+
+export type ICurrency = {
+  id: number;
   value: string;
-  label: string;
-  symbol: string;
+  name: string;
+  symbol: ICurrencySymbol | string;
 };
 
-const currencies: ICurrencyItem[] = [
+export const currencies: ICurrency[] = [
   {
-    // id: 0,
+    id: 0,
     value: "usd",
-    label: "Dollar",
+    name: "Dollar",
     symbol: "$",
   },
   {
-    // id: 1,
+    id: 1,
     value: "eur",
-    label: "Euro",
+    name: "Euro",
     symbol: "€",
   },
 ];
 
-export const NavigationBar = (selectedCurrency, setSelectedCurrency) => {
+export const NavigationBar = ({
+  selectedCurrency,
+  setSelectedCurrency,
+}: {
+  selectedCurrency: ICurrency;
+  setSelectedCurrency: any;
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const selectCurrency = (e) => {
+    const currencyItem = currencies.find((currency) => currency.value === e.target.value);
+
+    setSelectedCurrency(currencyItem);
+  };
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -45,8 +62,7 @@ export const NavigationBar = (selectedCurrency, setSelectedCurrency) => {
         />
         <NavbarBrand>
           <p className="font-bold text-inherit">
-            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span>{" "}
-            TRACKER
+            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span> TRACKER
           </p>
         </NavbarBrand>
       </NavbarContent>
@@ -71,14 +87,14 @@ export const NavigationBar = (selectedCurrency, setSelectedCurrency) => {
             className="rounded p-0.5 pb-1"
             name="currency"
             id="currency"
-            onChange={(e) => {
-              console.log(e);
-            }}
+            onChange={selectCurrency}
+            defaultValue={selectedCurrency.value}
           >
-            <option onSelect={(e) => console.log(e)} value="eur">
-              € Euro
-            </option>
-            <option value="usd">$ Dollar</option>
+            {currencies.map((currency) => (
+              <option key={currency.id} value={currency.value}>
+                {currency.symbol} {currency.name}
+              </option>
+            ))}
           </select>
         </NavbarItem>
       </NavbarContent>
@@ -88,11 +104,7 @@ export const NavigationBar = (selectedCurrency, setSelectedCurrency) => {
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               color={
-                index === 2
-                  ? "primary"
-                  : index === menuItems.length - 1
-                  ? "danger"
-                  : "foreground"
+                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
               }
               className="w-full"
               href="#"

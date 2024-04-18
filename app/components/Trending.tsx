@@ -2,7 +2,8 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from 
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
+import { ICurrency, ICurrencySymbol } from "./NavigationBar";
 
 type ICoin = {
   id: string;
@@ -135,20 +136,28 @@ type ITopCoin = {
   last_updated: string;
 };
 
-type ICurrency = "$" | "€";
+const fetcher = (url: string) =>
+  fetch(url + "?" + new URLSearchParams(searchParams)).then((res) => res.json());
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-export const TrendingCoins = () => {
-  const [currency, setCurrency] = useState<ICurrency>("€");
-
+export const TrendingCoins = ({ selectedCurrency }: { selectedCurrency: ICurrency }) => {
   const [marketCoins, setMarketCoins] = useState<any[]>([]);
 
-  const { data, error, isLoading, isValidating } = useSWR<any[]>("/api/markets", fetcher, {
+  const baseURL = "/api/markets";
+  const searchParams = {
+    vs_currency: selectedCurrency.value || "eur",
+    order: "market_cap_rank_desc",
+    per_page: "5",
+  };
+
+  const URL = `${baseURL}?${searchParams}`;
+
+  const { data, error, isLoading, isValidating } = useSWR<any[]>(URL, fetcher, {
     refreshInterval: 60000,
   });
 
   useMemo(() => setMarketCoins(data), [data]);
+
+  console.log({ data, selectedCurrency });
 
   return (
     <Table
@@ -172,7 +181,7 @@ export const TrendingCoins = () => {
               <p className="text-metal uppercase">{coin.symbol}</p>
             </TableCell>
             <TableCell>
-              {currency} {coin.current_price}
+              {selectedCurrency.symbol} {coin.current_price}
             </TableCell>
           </TableRow>
         ))}

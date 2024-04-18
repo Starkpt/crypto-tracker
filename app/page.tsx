@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ICurrencyItem, NavigationBar } from "./components/NavigationBar";
+import { ICurrency, NavigationBar, currencies } from "./components/NavigationBar";
 import SearchCoins from "./components/SearchCoins";
 import { TrendingCoins } from "./components/Trending";
-import { Selection } from "@nextui-org/react";
 
 export default function Home() {
-  const [selectedCurrency, setSelectedCurrency] = useState("eur");
+  const defaultCurrency: ICurrency =
+    currencies.find((currency) => currency.value === "eur") || currencies[1];
+  const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(defaultCurrency);
 
   return (
     <>
@@ -18,7 +19,7 @@ export default function Home() {
 
       <main className="flex min-h-screen flex-col justify-between p-24">
         <div className="flex flex-row gap-3">
-          <TrendingCoins />
+          <TrendingCoins selectedCurrency={selectedCurrency} />
           <SearchCoins selectedCurrency={selectedCurrency} />
         </div>
       </main>
