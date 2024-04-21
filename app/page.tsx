@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { ICurrency, NavigationBar, currencies } from "./components/NavigationBar";
+import { useMemo, useState } from "react";
+import { NavigationBar } from "./components/NavigationBar";
 import SearchCoins from "./components/SearchCoins";
 import { TrendingCoins } from "./components/Trending";
+import { ICurrency } from "./types/types";
+import { selectableCurrencies } from "./utils/selectableCurrencies";
 
 export default function Home() {
-  const defaultCurrency: ICurrency =
-    currencies.find((currency) => currency.value === "eur") || currencies[1];
+  const defaultCurrency: ICurrency = useMemo(
+    () =>
+      selectableCurrencies.find((currency) => currency.value === "eur") || selectableCurrencies[1],
+    []
+  );
+
   const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(defaultCurrency);
 
   return (

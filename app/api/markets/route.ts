@@ -1,21 +1,13 @@
-// export const dynamic = "force-dynamic"; // defaults to auto
+import { NextRequest } from "next/server";
 
-const baseURL = "https://api.coingecko.com/api/v3/coins/markets";
+const options = { method: "GET", headers: { accept: "application/json" } };
 
-const options = {
-  method: "GET",
-  headers: { accept: "application/json" },
-  next: { revalidate: 10 },
-};
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
 
-export async function GET(request: Request) {
-  const searchParams = request.url.search;
-
-  const res = await fetch(`${baseURL}?${searchParams}`, options);
+  const res = await fetch(`${process.env.GECKO_API_URL_MARKETS}?${searchParams}`, options);
 
   const data = await res.json();
-
-  console.log({ res, data });
 
   return Response.json(data);
 }

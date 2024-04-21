@@ -1,13 +1,9 @@
-import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic"; // defaults to auto
+const options = { method: "GET", headers: { accept: "application/json" } };
 
 export async function GET() {
-  const options = { method: "GET", headers: { accept: "application/json" } };
+  const res = await fetch(`${process.env.GECKO_API_URL_TRENDING}`, options);
 
-  let data = await fetch("https://api.coingecko.com/api/v3/search/trending", options).then((res) =>
-    res.json()
-  );
+  const data = await res.json();
 
-  return NextResponse.json(data);
+  return Response.json(data);
 }

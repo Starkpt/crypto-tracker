@@ -11,43 +11,16 @@ import {
   NavbarMenuToggle,
 } from "@nextui-org/react";
 import { useState } from "react";
+import { INavigationBar } from "../types/types";
+import { selectableCurrencies as currencies } from "../utils/selectableCurrencies";
 
 const menuItems = ["Trending", "Search"];
 
-export type ICurrencySymbol = "$" | "€" | string;
-
-export type ICurrency = {
-  id: number;
-  value: string;
-  name: string;
-  symbol: ICurrencySymbol | string;
-};
-
-export const currencies: ICurrency[] = [
-  {
-    id: 0,
-    value: "usd",
-    name: "Dollar",
-    symbol: "$",
-  },
-  {
-    id: 1,
-    value: "eur",
-    name: "Euro",
-    symbol: "€",
-  },
-];
-
-export const NavigationBar = ({
-  selectedCurrency,
-  setSelectedCurrency,
-}: {
-  selectedCurrency: ICurrency;
-  setSelectedCurrency: any;
-}) => {
+export const NavigationBar = ({ selectedCurrency, setSelectedCurrency }: INavigationBar) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const selectCurrency = (e) => {
+    // const selectCurrency = (e: ChangeEvent<HTMLInputElement>) => {
     const currencyItem = currencies.find((currency) => currency.value === e.target.value);
 
     setSelectedCurrency(currencyItem);

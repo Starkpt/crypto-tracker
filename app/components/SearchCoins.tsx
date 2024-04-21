@@ -10,21 +10,23 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import useSWR from "swr";
+import { fetcher } from "../utils/fetcher";
+import { ICurrency } from "../types/types";
 
 type ISearchedCoins = {};
 
-const fetcher = (url: string, options: any) => fetch(url).then((res) => res.json());
+const params = { order: "market_cap_rank_desc", per_page: "5" };
+const fetcherOptions = { refreshInterval: 60000 };
 
-export default function SearchCoins(selectedCurrency) {
+export default function SearchCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
   const [searchedCoins, setSearchedCoins] = useState<any[]>([]);
 
-  const params = new URLSearchParams({
-    vs_currency: selectedCurrency,
-  });
+  const searchParams = new URLSearchParams({
+    vs_currency: selectedCurrency.value,
+    ...params,
+  }).toString();
 
-  const { data, error, isLoading, isValidating } = useSWR<any[]>("/api/search", fetcher, {
-    refreshInterval: 60000,
-  });
+  const { data, error, isLoading, isValidating } = useSWR<any[]>("/api/search", fetcher);
 
   useMemo(() => setSearchedCoins(data), [data]);
 
