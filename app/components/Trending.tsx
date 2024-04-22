@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 import {
   Spinner,
   Table,
@@ -7,19 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-
 import Image from "next/image";
-import { useMemo, useState } from "react";
 import useSWR from "swr";
-import { ICurrency } from "../types/types";
+
 import { fetcher } from "../utils/fetcher";
 
-const baseURL = "/api/markets";
+import { ICurrency } from "../types/types";
+
+const marketsURL = "/api/markets";
 
 const params = { order: "market_cap_rank_desc", per_page: "5" };
 const fetcherOptions = { refreshInterval: 60000 };
 
-export const TrendingCoins = ({ selectedCurrency }: { selectedCurrency: ICurrency }) => {
+export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
   const [marketCoins, setMarketCoins] = useState<any[]>([]);
 
   const searchParams = new URLSearchParams({
@@ -27,7 +29,7 @@ export const TrendingCoins = ({ selectedCurrency }: { selectedCurrency: ICurrenc
     ...params,
   }).toString();
 
-  const URL = `${baseURL}?${searchParams}`;
+  const URL = `${marketsURL}?${searchParams}`;
 
   const { data, error, isLoading, isValidating } = useSWR(URL, fetcher, fetcherOptions);
 
@@ -36,7 +38,7 @@ export const TrendingCoins = ({ selectedCurrency }: { selectedCurrency: ICurrenc
   return (
     <Table
       className="w-96"
-      selectionMode="single"
+      // selectionMode="single"
       // defaultSelectedKeys={["1"]}
       aria-label="Top 5 crypto currencies"
     >
@@ -62,4 +64,4 @@ export const TrendingCoins = ({ selectedCurrency }: { selectedCurrency: ICurrenc
       </TableBody>
     </Table>
   );
-};
+}

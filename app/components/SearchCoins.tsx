@@ -30,7 +30,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
 
   useMemo(() => setSearchedCoins(data), [data]);
 
-  console.log(data);
+  console.log({ data });
 
   // const [page, setPage] = React.useState(1);
   // const rowsPerPage = 4;

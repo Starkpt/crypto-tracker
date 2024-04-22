@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Link,
   Navbar,
@@ -10,13 +12,14 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from "@nextui-org/react";
-import { useState } from "react";
-import { INavigationBar } from "../types/types";
+
 import { selectableCurrencies as currencies } from "../utils/selectableCurrencies";
+
+import { INavigationBar } from "../types/types";
 
 const menuItems = ["Trending", "Search"];
 
-export const NavigationBar = ({ selectedCurrency, setSelectedCurrency }: INavigationBar) => {
+export default function NavigationBar({ selectedCurrency, setSelectedCurrency }: INavigationBar) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const selectCurrency = (e) => {
@@ -90,4 +93,4 @@ export const NavigationBar = ({ selectedCurrency, setSelectedCurrency }: INaviga
       </NavbarMenu>
     </Navbar>
   );
-};
+}

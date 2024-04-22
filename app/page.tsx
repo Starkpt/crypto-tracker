@@ -1,11 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { NavigationBar } from "./components/NavigationBar";
+
+import NavigationBar from "./components/NavigationBar";
 import SearchCoins from "./components/SearchCoins";
-import { TrendingCoins } from "./components/Trending";
-import { ICurrency } from "./types/types";
+import TrendingCoins from "./components/Trending";
+
 import { selectableCurrencies } from "./utils/selectableCurrencies";
+
+import { ICurrency } from "./types/types";
 
 export default function Home() {
   const defaultCurrency: ICurrency = useMemo(
