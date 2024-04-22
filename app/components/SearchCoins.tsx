@@ -1,94 +1,106 @@
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Pagination,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
   getKeyValue,
 } from "@nextui-org/react";
 import useSWR from "swr";
-import { fetcher } from "../utils/fetcher";
-import { ICurrency } from "../types/types";
+import _ from "lodash";
 
-type ISearchedCoins = {};
+import { fetcher } from "../utils/fetcher";
+
+import { ICurrency, IMarketCoin } from "../types/types";
+
+const marketsURL = "/api/markets";
 
 const params = { order: "market_cap_rank_desc", per_page: "5" };
 const fetcherOptions = { refreshInterval: 60000 };
 
-export default function SearchCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
+const rowsPerPage = 10;
+
+export default function SearchCoins({
+  selectedCurrency,
+}: {
+  selectedCurrency: ICurrency;
+}) {
+  const [coinsList, setCoinsList] = useState<IMarketCoin[][]>([]);
   const [searchedCoins, setSearchedCoins] = useState<any[]>([]);
+
+  const [page, setPage] = useState(1);
+  const [listIndex, setListIndex] = useState(0);
 
   const searchParams = new URLSearchParams({
     vs_currency: selectedCurrency.value,
     ...params,
   }).toString();
 
-  const { data, error, isLoading, isValidating } = useSWR<any[]>("/api/search", fetcher);
+  const URL = `${marketsURL}?${searchParams}`;
 
-  useMemo(() => setSearchedCoins(data), [data]);
+  const {
+    data,
+    error,
+    // isLoading,
+    isValidating,
+  } = useSWR<any[]>(URL, fetcher, fetcherOptions);
 
-  console.log({ data });
-
-  // const [page, setPage] = React.useState(1);
-  // const rowsPerPage = 4;
-
-  // const pages = Math.ceil(searchedCoins?.length / rowsPerPage) || 1;
-
-  // const items = React.useMemo(() => {
-  //   const start = (page - 1) * rowsPerPage;
-  //   const end = start + rowsPerPage;
-
-  //   return searchedCoins?.slice(start, end);
-  // }, [page, searchedCoins]);
+  useMemo(() => setCoinsList(_.chunk(data, rowsPerPage)), [data]);
 
   return (
-    <div>asd</div>
-    // <Table
-    //   aria-label="Example table with client side pagination"
-    //   bottomContent={
-    //     <div className="flex w-full justify-center">
-    //       <Pagination
-    //         isCompact
-    //         showControls
-    //         showShadow
-    //         color="secondary"
-    //         page={page}
-    //         total={pages}
-    //         onChange={(page) => setPage(page)}
-    //       />
-    //     </div>
-    //   }
-    //   classNames={{
-    //     wrapper: "min-h-[222px]",
-    //   }}
-    // >
-    //   <TableHeader>
-    //     <TableColumn key="name">NAME</TableColumn>
-    //     <TableColumn key="role">ROLE</TableColumn>
-    //     <TableColumn key="status">STATUS</TableColumn>
-    //   </TableHeader>
-    //   <TableBody items={items}>
-    //     <>
-    //       {" "}
-    //       <TableRow key={"name"}>
-    //         <TableCell>this</TableCell>
-    //       </TableRow>
-    //       <TableRow key={"role"}>
-    //         <TableCell>role</TableCell>
-    //       </TableRow>
-    //       <TableRow key={"status"}>
-    //         <TableCell>offline</TableCell>
-    //       </TableRow>
-    //       {/* {(item) => (
-    //         <TableRow key={item.name}>
-    //           {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-    //         </TableRow>
-    //       )} */}
-    //     </>
-    //   </TableBody>
-    // </Table>
+    <Table
+      aria-label="Example table with client side pagination"
+      bottomContent={
+        <div className="flex w-full justify-center">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            color="secondary"
+            page={page}
+            total={coinsList.length}
+            onChange={(page) => {
+              console.log(page);
+              setPage(page);
+              setListIndex(page - 1);
+            }}
+          />
+        </div>
+      }
+      classNames={{
+        wrapper: "min-h-[222px]",
+      }}
+    >
+      <TableHeader>
+        <TableColumn key="name">NAME</TableColumn>
+        <TableColumn key="price">PRICE</TableColumn>
+        <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
+      </TableHeader>
+      <TableBody
+        // items={coinsList?.[page]}
+        emptyContent={<Spinner />}
+      >
+        {coinsList[listIndex]?.map((coin) => (
+          <TableRow key={coin.name}>
+            <TableCell>{coin.name}</TableCell>
+            <TableCell>{coin.current_price}</TableCell>
+            <TableCell>{coin.price_change_24h}</TableCell>
+          </TableRow>
+        ))}
+
+        {/* {(item: IMarketCoin) => (
+            <TableRow key={item.name}>
+              {(columnKey) => (
+                <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+        )} */}
+      </TableBody>
+    </Table>
   );
 }

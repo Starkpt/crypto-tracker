@@ -19,12 +19,17 @@ import { INavigationBar } from "../types/types";
 
 const menuItems = ["Trending", "Search"];
 
-export default function NavigationBar({ selectedCurrency, setSelectedCurrency }: INavigationBar) {
+export default function NavigationBar({
+  selectedCurrency,
+  setSelectedCurrency,
+}: INavigationBar) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const selectCurrency = (e) => {
+  const selectCurrency = (e: any) => {
     // const selectCurrency = (e: ChangeEvent<HTMLInputElement>) => {
-    const currencyItem = currencies.find((currency) => currency.value === e.target.value);
+    const currencyItem = currencies.find(
+      (currency) => currency.value === e.target.value
+    );
 
     setSelectedCurrency(currencyItem);
   };
@@ -38,7 +43,8 @@ export default function NavigationBar({ selectedCurrency, setSelectedCurrency }:
         />
         <NavbarBrand>
           <p className="font-bold text-inherit">
-            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span> TRACKER
+            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span>{" "}
+            TRACKER
           </p>
         </NavbarBrand>
       </NavbarContent>
@@ -80,7 +86,11 @@ export default function NavigationBar({ selectedCurrency, setSelectedCurrency }:
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               color={
-                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
+                index === 2
+                  ? "primary"
+                  : index === menuItems.length - 1
+                  ? "danger"
+                  : "foreground"
               }
               className="w-full"
               href="#"
