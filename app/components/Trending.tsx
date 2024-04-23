@@ -21,11 +21,7 @@ const marketsURL = "/api/markets";
 const params = { order: "market_cap_rank_desc", per_page: "5" };
 const fetcherOptions = { refreshInterval: 60000 };
 
-export default function TrendingCoins({
-  selectedCurrency,
-}: {
-  selectedCurrency: ICurrency;
-}) {
+export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
   const [marketCoins, setMarketCoins] = useState<any[]>([]);
 
   const searchParams = new URLSearchParams({
@@ -35,17 +31,16 @@ export default function TrendingCoins({
 
   const URL = `${marketsURL}?${searchParams}`;
 
-  const { data, error, isLoading, isValidating } = useSWR(
-    URL,
-    fetcher,
-    fetcherOptions
-  );
+  const { data, error, isLoading, isValidating } = useSWR(URL, fetcher, fetcherOptions);
 
   useMemo(() => setMarketCoins(data), [data]);
 
   return (
     <Table
       className="w-96"
+      classNames={{
+        wrapper: "rounded-small",
+      }}
       // selectionMode="single"
       // defaultSelectedKeys={["1"]}
       aria-label="Top 5 crypto currencies"
