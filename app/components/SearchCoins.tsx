@@ -11,23 +11,40 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  getKeyValue,
 } from "@nextui-org/react";
-import useSWR from "swr";
 import _, { debounce } from "lodash";
+import useSWR from "swr";
 
 import { fetcher } from "../utils/fetcher";
 
 import { ICurrency, IMarketCoin } from "../types/types";
 import { SearchIcon } from "./SearchIcon";
+import Fuse from "fuse.js";
+import useFetchMarkets from "../hooks/useFetchData";
 
 const marketsURL = "/api/markets";
+const searchURL = "/api/search";
 
 const params = {
   // order: "market_cap_rank_desc",
   // per_page: "5",
 };
 const fetcherOptions = { refreshInterval: 60000 };
+
+const getURL = ({
+  selectedCurrencyValue,
+  params,
+}: {
+  selectedCurrencyValue: string;
+  params: object;
+}) => {
+  const searchParams = new URLSearchParams({
+    vs_currency: selectedCurrencyValue,
+    ...params,
+  }).toString();
+
+  return `${marketsURL}?${searchParams}`;
+};
 
 const rowsPerPage = 10;
 
@@ -39,19 +56,16 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState(page - 1);
 
-  const searchParams = new URLSearchParams({
-    vs_currency: selectedCurrency.value,
-    ...params,
-  }).toString();
-
-  const URL = `${marketsURL}?${searchParams}`;
-
   const {
     data,
     error,
     // isLoading,
     isValidating,
-  } = useSWR<any[]>(URL, fetcher, fetcherOptions);
+  } = useSWR<any[]>(
+    getURL({ selectedCurrencyValue: selectedCurrency.value, params }),
+    fetcher,
+    fetcherOptions
+  );
 
   useMemo(() => setCoinsList(_.chunk(data, rowsPerPage)), [data]);
   useMemo(() => setSearchedList(coinsList), [coinsList]);
@@ -61,8 +75,33 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
     setCoinsListIndex(page - 1);
   };
 
+  // const a = useFetchMarkets({ callback: () => console.log("callback"), selectedCurrency }, 2000);
+
+  const fuseOptions = {
+    // isCaseSensitive: false,
+    // includeScore: false,
+    // shouldSort: true,
+    // includeMatches: false,
+    // findAllMatches: false,
+    // minMatchCharLength: 1,
+    // location: 0,
+    // threshold: 0.6,
+    // distance: 100,
+    // useExtendedSearch: false,
+    // ignoreLocation: false,
+    // ignoreFieldNorm: false,
+    // fieldNormWeight: 1,
+    keys: ["name", "symbol"],
+  };
+
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     console.log("Changed value:", e.target.value);
+
+    if (!data) return;
+
+    const fuse = new Fuse(data, fuseOptions);
+    console.log(data);
+    console.log(fuse.search(e.target.value));
 
     if (!e.target.value) {
       setSearchedList(coinsList);
@@ -77,6 +116,10 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
   };
 
   const debouncedOnChange = debounce(handleOnChange, 1000);
+
+  useEffect(() => {
+    if (coinsList.length > 1) setPage(1);
+  }, [coinsList.length]);
 
   return (
     <div className="flex flex-col gap-3 w-full">
