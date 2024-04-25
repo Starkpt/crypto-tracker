@@ -14,14 +14,14 @@ const params = {
 const defaultFetcherOptions = { refreshInterval: 60000 };
 
 const getURL = ({
-  selectedCurrencyValue,
+  selectedCurrency = "eur",
   params,
 }: {
-  selectedCurrencyValue: string;
+  selectedCurrency: ICurrency | string;
   params: object;
 }) => {
   const searchParams = new URLSearchParams({
-    vs_currency: selectedCurrencyValue,
+    vs_currency: selectedCurrency.value || selectedCurrency,
     ...params,
   }).toString();
 
@@ -33,23 +33,19 @@ function useFetchMarkets(
     selectedCurrency,
     fetcher = APIFetcher,
     fetcherOptions = defaultFetcherOptions,
-    callback,
     setCoinsList,
     setSearchedList,
   }: {
     selectedCurrency: ICurrency;
     fetcher?: any;
     fetcherOptions?: object;
-    callback?: any;
     setCoinsList?: any;
     setSearchedList?: any;
   },
   delay?: number
 ) {
-  const savedCallback = useRef();
-
   const { data, error, isValidating, isLoading, mutate } = useSWR<any[]>(
-    getURL({ selectedCurrencyValue: selectedCurrency.value, params }),
+    getURL({ selectedCurrency: selectedCurrency.value, params }),
     fetcher,
     fetcherOptions
   );
