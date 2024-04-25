@@ -55,7 +55,9 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
   // TODO: improve pagination index logic
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState(page - 1);
+  const [newData, setNewData] = useState([]);
 
+  // Data fetching
   const {
     data,
     error,
@@ -67,15 +69,10 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
     fetcherOptions
   );
 
-  useMemo(() => setCoinsList(_.chunk(data, rowsPerPage)), [data]);
-  useMemo(() => setSearchedList(coinsList), [coinsList]);
+  const handleOnFetch = useFetchMarkets({ selectedCurrency, setCoinsList, setSearchedList }, 2000);
 
-  const handleSelectPage = (page: number) => {
-    setPage(page);
-    setCoinsListIndex(page - 1);
-  };
-
-  // const a = useFetchMarkets({ callback: () => console.log("callback"), selectedCurrency }, 2000);
+  // useMemo(() => setCoinsList(_.chunk(data, rowsPerPage)), [data]);
+  // useMemo(() => setSearchedList(coinsList), [coinsList]);
 
   const fuseOptions = {
     // isCaseSensitive: false,
@@ -92,6 +89,12 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
     // ignoreFieldNorm: false,
     // fieldNormWeight: 1,
     keys: ["name", "symbol"],
+  };
+
+  // Handlers
+  const handleSelectPage = (page: number) => {
+    setPage(page);
+    setCoinsListIndex(page - 1);
   };
 
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -117,6 +120,8 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
 
   const debouncedOnChange = debounce(handleOnChange, 1000);
 
+  const debFet = debounce(() => handleOnFetch, 2000);
+
   useEffect(() => {
     if (coinsList.length > 1) setPage(1);
   }, [coinsList.length]);
@@ -135,7 +140,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
         size="sm"
         startContent={<SearchIcon size={18} />}
         type="search"
-        onChange={debouncedOnChange}
+        onChange={debFet}
       />
 
       <Table
@@ -149,7 +154,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
               color="secondary"
               page={page}
               initialPage={page}
-              total={searchedList.length}
+              total={searchedList?.length}
               onChange={(page) => handleSelectPage(page)}
             />
           </div>
@@ -167,7 +172,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
           // items={searchedList?.[page]}
           emptyContent={<Spinner />}
         >
-          {searchedList[coinsListIndex]?.map((coin) => (
+          {searchedList?.[coinsListIndex]?.map((coin) => (
             <TableRow key={coin.name}>
               <TableCell className="flex gap-2">
                 <Image src={coin.image} alt={coin.name} width={25} height={25} />

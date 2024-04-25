@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import useSWR from "swr";
 import { ICurrency } from "../types/types";
+import { fetcher as APIFetcher } from "../utils/fetcher";
+import _ from "lodash";
 
 const marketsURL = "/api/markets";
 const searchURL = "/api/search";
@@ -9,7 +11,7 @@ const params = {
   // order: "market_cap_rank_desc",
   // per_page: "5",
 };
-const fetcherOptions = { refreshInterval: 60000 };
+const defaultFetcherOptions = { refreshInterval: 60000 };
 
 const getURL = ({
   selectedCurrencyValue,
@@ -29,93 +31,41 @@ const getURL = ({
 function useFetchMarkets(
   {
     selectedCurrency,
-    fetcher,
-    fetcherOptions,
+    fetcher = APIFetcher,
+    fetcherOptions = defaultFetcherOptions,
     callback,
+    setCoinsList,
+    setSearchedList,
   }: {
     selectedCurrency: ICurrency;
     fetcher?: any;
     fetcherOptions?: object;
     callback?: any;
+    setCoinsList?: any;
+    setSearchedList?: any;
   },
-  delay: number
+  delay?: number
 ) {
   const savedCallback = useRef();
 
-  const {
-    data,
-    error,
-    // isLoading,
-    isValidating,
-  } = useSWR<any[]>(
+  const { data, error, isValidating, isLoading, mutate } = useSWR<any[]>(
     getURL({ selectedCurrencyValue: selectedCurrency.value, params }),
     fetcher,
     fetcherOptions
   );
 
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
+  useMemo(() => {
+    setCoinsList(_.chunk(data, 10));
+    setSearchedList(_.chunk(data, 10));
+  }, [data, setCoinsList, setSearchedList]);
 
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      savedCallback.current();
-
-      console.log("hey tick");
-    }
-
-    if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
+  return {
+    data,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
 }
 
 export default useFetchMarkets;
-
-// function useInterval({
-//   selectedCurrency,
-//   fetcher,
-//   fetcherOptions,
-//   callback
-//   delay,
-// }: {
-//   selectedCurrency?: object;
-//   fetcher?: any;
-//   fetcherOptions?: object;
-//   callback: any
-//   delay: number;
-// }) {
-//   const savedCallback = useRef();
-
-//   const {
-//     data,
-//     error,
-//     // isLoading,
-//     isValidating,
-//   } = useSWR<any[]>(
-//     getURL({ selectedCurrencyValue: selectedCurrency.value, params }),
-//     fetcher,
-//     fetcherOptions
-//   );
-
-//   // // Remember the latest callback.
-//   // useEffect(() => {
-//   //   savedCallback.current = callback;
-//   // }, [callback]);
-
-//   // // Set up the interval.
-//   // useEffect(() => {
-//   //   function tick() {
-//   //     savedCallback.current();
-//   //   }
-//   //   if (delay !== null) {
-//   //     let id = setInterval(tick, delay);
-//   //     return () => clearInterval(id);
-//   //   }
-//   // }, [delay]);
-// }
-
-// export default useInterval;
