@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEventHandler, useMemo, useState } from "react";
 
 import {
   Image,
@@ -13,26 +13,26 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import _, { debounce } from "lodash";
-import useSWR from "swr";
 
-import { fetcher } from "../utils/fetcher";
-
-import { ICurrency, IMarketCoin } from "../types/types";
 import { SearchIcon } from "./SearchIcon";
-import Fuse from "fuse.js";
+
 import useFetchMarkets from "../hooks/useFetchData";
 import useSearchCoins from "../hooks/useSearchCoins";
 
-const rowsPerPage = 10;
+import { ICurrency, ISearchedCoins } from "../types/types";
 
 export default function SearchCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
-  const [coinsList, setCoinsList] = useState<IMarketCoin[][]>([]);
-  const [searchedList, setSearchedList] = useState<IMarketCoin[][]>([]);
-
   // TODO: improve pagination index logic
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>("");
+
+  // Data fetching hooks
+  const { data } = useFetchMarkets({ selectedCurrency }, 2000);
+
+  const { data: searchedCoins } = useSearchCoins({
+    query: useMemo(() => searchValue, [searchValue]),
+  });
 
   // Handlers
   const handleSelectPage = (page: number) => {
@@ -43,19 +43,31 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setSearchValue(e.target.value);
 
-    if (!e.target.value) {
-      setSearchedList(coinsList);
-    } else {
-      setSearchedList([coinsList[0]]);
-    }
-
     handleSelectPage(1);
   };
 
-  const debouncedOnChange = debounce(handleOnChange, 1000);
+  const debouncedOnChange = debounce(handleOnChange, 1800);
 
-  useFetchMarkets({ selectedCurrency, setCoinsList, setSearchedList }, 2000);
-  useSearchCoins({ query: useMemo(() => searchValue, [searchValue]) });
+  const coinsList =
+    useMemo(() => {
+      if (!data) return;
+
+      if (searchedCoins?.length) {
+        const searchedList = searchedCoins.reduce((acc: ICurrency[][], cur: ISearchedCoins) => {
+          const coin = data.find((coin) => coin.id === cur.id);
+
+          if (coin) {
+            acc.push(coin);
+          }
+
+          return acc;
+        }, []);
+
+        return _.chunk(searchedList, 10);
+      }
+
+      return _.chunk(data, 10);
+    }, [data, searchedCoins]) || [];
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -85,8 +97,8 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
               color="secondary"
               page={page}
               initialPage={page}
-              total={searchedList?.length}
-              onChange={(page) => handleSelectPage(page)}
+              total={coinsList?.length}
+              onChange={handleSelectPage}
             />
           </div>
         }
@@ -103,7 +115,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
           // items={searchedList?.[page]}
           emptyContent={<Spinner />}
         >
-          {searchedList?.[coinsListIndex]?.map((coin) => (
+          {coinsList?.[coinsListIndex]?.map((coin) => (
             <TableRow key={coin.name}>
               <TableCell className="flex gap-2">
                 <Image src={coin.image} alt={coin.name} width={25} height={25} />

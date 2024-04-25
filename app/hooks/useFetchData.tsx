@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import useSWR from "swr";
-import { ICurrency } from "../types/types";
-import { fetcher as APIFetcher } from "../utils/fetcher";
-import _ from "lodash";
+import { useMemo } from "react";
 
-const marketsURL = "/api/markets";
-const searchURL = "/api/search";
+import _ from "lodash";
+import useSWR from "swr";
+
+import { fetcher as APIFetcher } from "../utils/fetcher";
+
+import { ICurrency } from "../types/types";
 
 const params = {
   // order: "market_cap_rank_desc",
@@ -25,7 +25,7 @@ const getURL = ({
     ...params,
   }).toString();
 
-  return `${marketsURL}?${searchParams}`;
+  return `/api/markets?${searchParams}`;
 };
 
 function useFetchMarkets(
@@ -33,14 +33,10 @@ function useFetchMarkets(
     selectedCurrency,
     fetcher = APIFetcher,
     fetcherOptions = defaultFetcherOptions,
-    setCoinsList,
-    setSearchedList,
   }: {
     selectedCurrency: ICurrency;
     fetcher?: any;
     fetcherOptions?: object;
-    setCoinsList?: any;
-    setSearchedList?: any;
   },
   delay?: number
 ) {
@@ -49,11 +45,6 @@ function useFetchMarkets(
     fetcher,
     fetcherOptions
   );
-
-  useMemo(() => {
-    setCoinsList(_.chunk(data, 10));
-    setSearchedList(_.chunk(data, 10));
-  }, [data, setCoinsList, setSearchedList]);
 
   return {
     data,
