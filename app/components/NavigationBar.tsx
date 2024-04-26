@@ -19,36 +19,31 @@ import { INavigationBar } from "../types/types";
 
 const menuItems = ["Trending", "Search"];
 
-export default function NavigationBar({
-  selectedCurrency,
-  setSelectedCurrency,
-}: INavigationBar) {
+export default function NavigationBar({ selectedCurrency, setSelectedCurrency }: INavigationBar) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const selectCurrency = (e: any) => {
     // const selectCurrency = (e: ChangeEvent<HTMLInputElement>) => {
-    const currencyItem = currencies.find(
-      (currency) => currency.value === e.target.value
-    );
+    const currencyItem = currencies.find((currency) => currency.value === e.target.value);
 
     setSelectedCurrency(currencyItem);
   };
 
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen}>
+    <Navbar onMenuOpenChange={setIsMenuOpen} maxWidth="full" className="lg:px-28">
       <NavbarContent>
-        <NavbarMenuToggle
+        {/* <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
-        />
+        /> */}
         <NavbarBrand>
           <p className="font-bold text-inherit">
-            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span>{" "}
-            TRACKER
+            <span className="bg-purple pt-1 pb-2 px-1.5 rounded">CRYPTO</span> TRACKER
           </p>
         </NavbarBrand>
       </NavbarContent>
 
+      {/* 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
           <Link href="/" color="foreground">
@@ -62,9 +57,10 @@ export default function NavigationBar({
           </Link>
         </NavbarItem>
       </NavbarContent>
+      */}
 
-      <NavbarContent className="sm:flex w-32" justify="center">
-        <NavbarItem className="w-full">
+      <NavbarContent justify="center">
+        <NavbarItem>
           <select
             className="rounded p-0.5 pb-1"
             name="currency"
@@ -81,16 +77,13 @@ export default function NavigationBar({
         </NavbarItem>
       </NavbarContent>
 
+      {/* 
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               color={
-                index === 2
-                  ? "primary"
-                  : index === menuItems.length - 1
-                  ? "danger"
-                  : "foreground"
+                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
               }
               className="w-full"
               href="#"
@@ -101,6 +94,7 @@ export default function NavigationBar({
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
+      */}
     </Navbar>
   );
 }

@@ -26,8 +26,8 @@ export default function Home() {
         setSelectedCurrency={setSelectedCurrency}
       />
 
-      <main className="flex min-h-screen flex-col justify-between p-24">
-        <div className="flex flex-row gap-3">
+      <main className="flex min-h-screen flex-col justify-between py-6 px-6 lg:px-32">
+        <div className="flex flex-col lg:flex-row gap-y-10 lg:gap-6">
           <TrendingCoins selectedCurrency={selectedCurrency} />
           <SearchCoins selectedCurrency={selectedCurrency} />
         </div>
