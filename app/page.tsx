@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 
 import NavigationBar from "./components/NavigationBar";
 import SearchCoins from "./components/SearchCoins";
-import TrendingCoins from "./components/Trending";
+import TrackedCoins from "./components/TrackedCoins";
+import TrendingCoins from "./components/TrendingCoins";
 
 import { selectableCurrencies } from "./utils/selectableCurrencies";
 
@@ -28,7 +29,11 @@ export default function Home() {
 
       <main className="flex min-h-screen flex-col justify-between py-6 px-6 lg:px-32">
         <div className="flex flex-col lg:flex-row gap-y-10 lg:gap-6">
-          <TrendingCoins selectedCurrency={selectedCurrency} />
+          <div className="flex flex-col gap-6 lg:w-96">
+            <TrendingCoins selectedCurrency={selectedCurrency} />
+            <TrackedCoins />
+          </div>
+
           <SearchCoins selectedCurrency={selectedCurrency} />
         </div>
       </main>

@@ -12,33 +12,12 @@ import {
 import Image from "next/image";
 import useSWR from "swr";
 
-import { fetcher } from "../utils/fetcher";
-
-import { ICurrency } from "../types/types";
-
-const marketsURL = "/api/markets";
-
-const params = { order: "market_cap_rank_desc", per_page: "5" };
-const fetcherOptions = { refreshInterval: 60000 };
-
-export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
-  const [marketCoins, setMarketCoins] = useState<any[]>([]);
-
-  const searchParams = new URLSearchParams({
-    vs_currency: selectedCurrency.value || "eur",
-    ...params,
-  }).toString();
-
-  const URL = `${marketsURL}?${searchParams}`;
-
-  const { data, error, isLoading, isValidating } = useSWR(URL, fetcher, fetcherOptions);
-
-  useMemo(() => setMarketCoins(data), [data]);
-
+export default function TrackedCoins() {
   return (
-    <div className="flex flex-col gap-3 lg:w-96">
-      <h3 className="font-semibold text-xl h-10">Trending</h3>
-      <Table
+    <div className="flex flex-col gap-3">
+      <h3 className="font-semibold text-xl h-10">Tracked Coins</h3>
+
+      {/* <Table
         classNames={{
           wrapper: "rounded-small",
         }}
@@ -52,7 +31,10 @@ export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: 
           <TableColumn>COIN</TableColumn>
           <TableColumn>CURRENT PRICE</TableColumn>
         </TableHeader>
-        <TableBody isLoading={isValidating} emptyContent={<Spinner />}>
+        <TableBody
+          // isLoading={isValidating}
+          emptyContent={<Spinner />}
+        >
           {marketCoins?.map((coin: any, id: number) => (
             <TableRow key={id}>
               <TableCell>{coin.market_cap_rank}</TableCell>
@@ -67,7 +49,7 @@ export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: 
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   );
 }
