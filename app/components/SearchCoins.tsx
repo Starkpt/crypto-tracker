@@ -49,18 +49,42 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
   const debouncedOnChange = debounce(handleOnChange, 1800);
 
   const coinsList = useMemo(() => {
-    const CHUNK_SIZE = 10;
+    const ITEMS_PER_PAGE = 10;
 
     if (data && searchedCoins?.length) {
       const filteredList = data.filter((coin) =>
         searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
       );
 
-      return _.chunk(filteredList, CHUNK_SIZE);
+      return _.chunk(filteredList, ITEMS_PER_PAGE);
     }
 
-    return _.chunk(data, CHUNK_SIZE);
+    return _.chunk(data, ITEMS_PER_PAGE);
   }, [data, searchedCoins]);
+
+  const handleTrackedCoin = (e) => {
+    const coinId = e.target.id;
+    const trackedCoinsJSON = localStorage.getItem("trackedCoins");
+
+    const toggleCoinTracking = (coins: { id: string }[], coinId: string) => {
+      const coinExists = coins.some((coin) => coin.id === coinId);
+
+      if (coinExists) {
+        return coins.filter((coin) => coin.id !== coinId);
+      } else {
+        return [...coins, { id: coinId }];
+      }
+    };
+
+    let trackedCoins = [];
+
+    if (trackedCoinsJSON) {
+      trackedCoins = JSON.parse(trackedCoinsJSON);
+    }
+
+    const updatedTrackedCoins = toggleCoinTracking(trackedCoins, coinId);
+    localStorage.setItem("trackedCoins", JSON.stringify(updatedTrackedCoins));
+  };
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -102,6 +126,7 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
           }}
         >
           <TableHeader>
+            <TableColumn key="track"> </TableColumn>
             <TableColumn key="name">NAME</TableColumn>
             <TableColumn key="price">PRICE</TableColumn>
             <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
@@ -112,6 +137,11 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
           >
             {coinsList?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
+                <TableCell>
+                  <a href="#" id={coin.id} onClick={handleTrackedCoin}>
+                    t
+                  </a>
+                </TableCell>
                 <TableCell className="flex gap-2">
                   <Image src={coin.image} alt={coin.name} width={25} height={25} />
                   <p className="font-medium">{coin.name}</p>
