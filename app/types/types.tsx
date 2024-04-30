@@ -146,6 +146,9 @@ export type IMarketCoin = {
   };
   last_updated: string;
 };
+export interface ICoinSearch extends IMarketCoin {
+  isTracked: boolean;
+}
 
 export type ISearchedCoins = {
   id: string;

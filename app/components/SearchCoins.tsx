@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import _, { debounce } from "lodash";
+import _, { debounce, extend } from "lodash";
 import Image from "next/image";
 
 import starFilled from "@/public/star-filled.svg";
@@ -21,7 +21,7 @@ import { SearchIcon } from "./SearchIcon";
 
 import useSearchCoins from "../hooks/useSearchCoins";
 
-import { ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
+import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
 
 import { handleTrackedCoin } from "../utils/handleTrackedCoins";
 import { PressEvent, usePress } from "@react-aria/interactions";
@@ -56,25 +56,43 @@ export default function SearchCoins({
 
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setSearchValue(e.target.value);
-
     handleSelectPage(1);
   };
 
   const debouncedOnChange = debounce(handleOnChange, 1800);
 
-  const coinsList: IMarketCoin[][] = useMemo(() => {
+
+  // Coin Search
+  const trackedCoins = localStorage.getItem("trackedCoins");
+
+  const coinSearchList: ICoinSearch[][] = useMemo(() => {
     const ITEMS_PER_PAGE = 10;
+    const trackedCoinsJSON = trackedCoins ? JSON.parse(trackedCoins) : [];
 
-    if (data && searchedCoins?.length) {
-      const filteredList = data.filter((coin: IMarketCoin) =>
-        searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
-      );
+    if (!data) return [];
 
-      return _.chunk(filteredList, ITEMS_PER_PAGE);
+    let filteredList: ICoinSearch[] = data;
+
+    if (searchedCoins?.length) {
+      filteredList = data
+        .filter((coin: IMarketCoin) =>
+          searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
+        )
+        .map((coin: IMarketCoin) => {
+          const isTracked = trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id);
+
+          return { ...coin, isTracked };
+        });
+    } else {
+      filteredList = data.map((coin: IMarketCoin) => {
+        const isTracked = trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id);
+
+        return { ...coin, isTracked };
+      });
     }
 
-    return _.chunk(data, ITEMS_PER_PAGE);
-  }, [data, searchedCoins]);
+    return _.chunk(filteredList, ITEMS_PER_PAGE);
+  }, [data, searchedCoins, trackedCoins]);
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -106,7 +124,7 @@ export default function SearchCoins({
                 color="secondary"
                 page={page}
                 initialPage={page}
-                total={coinsList?.length}
+                total={coinSearchList?.length}
                 onChange={handleSelectPage}
               />
             </div>
@@ -125,7 +143,7 @@ export default function SearchCoins({
             // items={searchedList?.[page]}
             emptyContent={<Spinner />}
           >
-            {coinsList?.[coinsListIndex]?.map((coin) => (
+            {coinSearchList?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
                   <Button
@@ -135,8 +153,11 @@ export default function SearchCoins({
                     className="flex bg-transparent hover:bg-purple rounded-sm"
                     {...pressProps}
                   >
-                    <Image src={starOutlined} alt="Track" width={25} height={25} />
-                    {/* <Image src={starFilled} alt="Track" width={25} height={25} /> */}
+                    {coin.isTracked ? (
+                      <Image src={starFilled} alt="Tracked" width={25} height={25} />
+                    ) : (
+                      <Image src={starOutlined} alt="Untracked" width={25} height={25} />
+                    )}
                   </Button>
                 </TableCell>
                 <TableCell className="flex gap-2">
