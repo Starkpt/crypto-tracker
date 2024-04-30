@@ -10,12 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { PressEvent, usePress } from "@react-aria/interactions";
 import Image from "next/image";
 
 import star from "@/public/star-filled.svg";
 
 import { ICurrency, IMarketCoin } from "../types/types";
-import { PressEvent, usePress } from "@react-aria/interactions";
+
 import { handleTrackedCoin } from "../utils/handleTrackedCoins";
 
 export default function TrackedCoins({
