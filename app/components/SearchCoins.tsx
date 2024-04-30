@@ -1,7 +1,7 @@
 import { ChangeEventHandler, useMemo, useState } from "react";
 
 import {
-  Image,
+  Button,
   Input,
   Pagination,
   Spinner,
@@ -13,22 +13,36 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import _, { debounce } from "lodash";
+import Image from "next/image";
 
+import starFilled from "@/public/star-filled.svg";
+import starOutlined from "@/public/star-outlined.svg";
 import { SearchIcon } from "./SearchIcon";
 
-import useFetchMarkets from "../hooks/useFetchData";
 import useSearchCoins from "../hooks/useSearchCoins";
 
-import { ICurrency, ISearchedCoins } from "../types/types";
+import { ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
 
-export default function SearchCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
+import { handleTrackedCoin } from "../utils/handleTrackedCoins";
+import { PressEvent, usePress } from "@react-aria/interactions";
+
+export default function SearchCoins({
+  selectedCurrency,
+  setTrackedCoins,
+  data,
+}: {
+  selectedCurrency: ICurrency;
+  setTrackedCoins: any;
+  data: any;
+}) {
   // TODO: improve pagination index logic
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>("");
 
-  // Data fetching hooks
-  const { data } = useFetchMarkets({ selectedCurrency }, 2000);
+  let { pressProps } = usePress({
+    onPress: (e: PressEvent) => handleTrackedCoin(e, setTrackedCoins),
+  });
 
   const { data: searchedCoins } = useSearchCoins({
     query: useMemo(() => searchValue, [searchValue]),
@@ -48,11 +62,11 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
 
   const debouncedOnChange = debounce(handleOnChange, 1800);
 
-  const coinsList = useMemo(() => {
+  const coinsList: IMarketCoin[][] = useMemo(() => {
     const ITEMS_PER_PAGE = 10;
 
     if (data && searchedCoins?.length) {
-      const filteredList = data.filter((coin) =>
+      const filteredList = data.filter((coin: IMarketCoin) =>
         searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
       );
 
@@ -61,30 +75,6 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
 
     return _.chunk(data, ITEMS_PER_PAGE);
   }, [data, searchedCoins]);
-
-  const handleTrackedCoin = (e) => {
-    const coinId = e.target.id;
-    const trackedCoinsJSON = localStorage.getItem("trackedCoins");
-
-    const toggleCoinTracking = (coins: { id: string }[], coinId: string) => {
-      const coinExists = coins.some((coin) => coin.id === coinId);
-
-      if (coinExists) {
-        return coins.filter((coin) => coin.id !== coinId);
-      } else {
-        return [...coins, { id: coinId }];
-      }
-    };
-
-    let trackedCoins = [];
-
-    if (trackedCoinsJSON) {
-      trackedCoins = JSON.parse(trackedCoinsJSON);
-    }
-
-    const updatedTrackedCoins = toggleCoinTracking(trackedCoins, coinId);
-    localStorage.setItem("trackedCoins", JSON.stringify(updatedTrackedCoins));
-  };
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -137,10 +127,17 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
           >
             {coinsList?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
-                <TableCell>
-                  <a href="#" id={coin.id} onClick={handleTrackedCoin}>
-                    t
-                  </a>
+                <TableCell width={20} className="p-1">
+                  <Button
+                    id={coin.id}
+                    isIconOnly
+                    size="sm"
+                    className="flex bg-transparent hover:bg-purple rounded-sm"
+                    {...pressProps}
+                  >
+                    <Image src={starOutlined} alt="Track" width={25} height={25} />
+                    {/* <Image src={starFilled} alt="Track" width={25} height={25} /> */}
+                  </Button>
                 </TableCell>
                 <TableCell className="flex gap-2">
                   <Image src={coin.image} alt={coin.name} width={25} height={25} />
@@ -153,14 +150,6 @@ export default function SearchCoins({ selectedCurrency }: { selectedCurrency: IC
                 <TableCell>{coin.price_change_24h}</TableCell>
               </TableRow>
             ))}
-
-            {/* {(item: IMarketCoin) => (
-            <TableRow key={item.name}>
-              {(columnKey) => (
-                <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-        )} */}
           </TableBody>
         </Table>
       </div>

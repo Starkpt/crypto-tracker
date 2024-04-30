@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import NavigationBar from "./components/NavigationBar";
 import SearchCoins from "./components/SearchCoins";
@@ -10,6 +10,7 @@ import TrendingCoins from "./components/TrendingCoins";
 import { selectableCurrencies } from "./utils/selectableCurrencies";
 
 import { ICurrency } from "./types/types";
+import useFetchMarkets from "./hooks/useFetchData";
 
 export default function Home() {
   const defaultCurrency: ICurrency = useMemo(
@@ -19,6 +20,18 @@ export default function Home() {
   );
 
   const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(defaultCurrency);
+
+  const [trackedCoins, setTrackedCoins] = useState([]);
+
+  const { data } = useFetchMarkets({ selectedCurrency }, 2000);
+
+  useEffect(() => {
+    const localCoins = localStorage.getItem("trackedCoins");
+
+    if (localCoins) {
+      setTrackedCoins(JSON.parse(localCoins));
+    }
+  }, []);
 
   return (
     <>
@@ -31,10 +44,19 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-y-10 lg:gap-6">
           <div className="flex flex-col gap-6 lg:w-96">
             <TrendingCoins selectedCurrency={selectedCurrency} />
-            <TrackedCoins />
+            <TrackedCoins
+              data={data}
+              selectedCurrency={selectedCurrency}
+              setTrackedCoins={setTrackedCoins}
+              trackedCoins={trackedCoins}
+            />
           </div>
 
-          <SearchCoins selectedCurrency={selectedCurrency} />
+          <SearchCoins
+            data={data}
+            selectedCurrency={selectedCurrency}
+            setTrackedCoins={setTrackedCoins}
+          />
         </div>
       </main>
     </>
