@@ -6,23 +6,12 @@ import useSWR from "swr";
 import { fetcher as APIFetcher } from "../utils/fetcher";
 
 import { ICurrency } from "../types/types";
-
-const params = {
-  // order: "market_cap_rank_desc",
-  // per_page: "5",
-};
 const defaultFetcherOptions = { refreshInterval: 60000 };
 
-const getURL = ({
-  selectedCurrency = "eur",
-  params,
-}: {
-  selectedCurrency: ICurrency | string;
-  params: object;
-}) => {
+const getURL = ({ selectedCurrency = "eur" }: { selectedCurrency: ICurrency | string }) => {
   const searchParams = new URLSearchParams({
     vs_currency: selectedCurrency.value || selectedCurrency,
-    ...params,
+    sparkline: "true",
   }).toString();
 
   return `/api/markets?${searchParams}`;
@@ -41,7 +30,7 @@ function useFetchMarkets(
   delay?: number
 ) {
   const { data, error, isValidating, isLoading, mutate } = useSWR<any[]>(
-    getURL({ selectedCurrency: selectedCurrency.value, params }),
+    getURL({ selectedCurrency: selectedCurrency.value }),
     fetcher,
     fetcherOptions
   );

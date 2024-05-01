@@ -145,9 +145,12 @@ export type IMarketCoin = {
     percentage: number;
   };
   last_updated: string;
+  sparkline_in_7d?: {
+    price: number[] | string[];
+  };
 };
 export interface ICoinSearch extends IMarketCoin {
-  isTracked: boolean;
+  isTracked?: boolean;
 }
 
 export type ISearchedCoins = {

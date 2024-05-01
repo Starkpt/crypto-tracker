@@ -12,8 +12,19 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import _, { debounce, extend } from "lodash";
+import _, { debounce } from "lodash";
 import Image from "next/image";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
 import starFilled from "@/public/star-filled.svg";
 import starOutlined from "@/public/star-outlined.svg";
@@ -23,8 +34,10 @@ import useSearchCoins from "../hooks/useSearchCoins";
 
 import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
 
-import { handleTrackedCoin } from "../utils/handleTrackedCoins";
 import { PressEvent, usePress } from "@react-aria/interactions";
+import { handleTrackedCoin } from "../utils/handleTrackedCoins";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function SearchCoins({
   selectedCurrency,
@@ -33,7 +46,7 @@ export default function SearchCoins({
 }: {
   selectedCurrency: ICurrency;
   setTrackedCoins: any;
-  data: any;
+  data: IMarketCoin[];
 }) {
   // TODO: improve pagination index logic
   const [page, setPage] = useState<number>(1);
@@ -61,7 +74,6 @@ export default function SearchCoins({
 
   const debouncedOnChange = debounce(handleOnChange, 1800);
 
-
   // Coin Search
   const trackedCoins = localStorage.getItem("trackedCoins");
 
@@ -74,22 +86,15 @@ export default function SearchCoins({
     let filteredList: ICoinSearch[] = data;
 
     if (searchedCoins?.length) {
-      filteredList = data
-        .filter((coin: IMarketCoin) =>
-          searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
-        )
-        .map((coin: IMarketCoin) => {
-          const isTracked = trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id);
-
-          return { ...coin, isTracked };
-        });
-    } else {
-      filteredList = data.map((coin: IMarketCoin) => {
-        const isTracked = trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id);
-
-        return { ...coin, isTracked };
-      });
+      filteredList = data.filter((coin: IMarketCoin) =>
+        searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
+      );
     }
+
+    filteredList = data.map((coin: IMarketCoin) => ({
+      isTracked: trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id),
+      ...coin,
+    }));
 
     return _.chunk(filteredList, ITEMS_PER_PAGE);
   }, [data, searchedCoins, trackedCoins]);
@@ -138,6 +143,7 @@ export default function SearchCoins({
             <TableColumn key="name">NAME</TableColumn>
             <TableColumn key="price">PRICE</TableColumn>
             <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
+            <TableColumn key="chart">CHART</TableColumn>
           </TableHeader>
           <TableBody
             // items={searchedList?.[page]}
@@ -168,7 +174,46 @@ export default function SearchCoins({
                 <TableCell>
                   {selectedCurrency.symbol} {coin.current_price}
                 </TableCell>
-                <TableCell>{coin.price_change_24h}</TableCell>
+                <TableCell>
+                  {selectedCurrency.symbol} {coin.price_change_24h}
+                </TableCell>
+                <TableCell>
+                  <Line
+                    options={{
+                      responsive: true,
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      plugins: {
+                        title: {
+                          display: false,
+                        },
+                        legend: {
+                          display: false,
+                        },
+                      },
+                    }}
+                    data={{
+                      datasets: [
+                        {
+                          type: "line",
+                          // label: "Dataset 1",
+                          data: coin.sparkline_in_7d?.price.map((price, id) => ({
+                            x: "Hour " + id,
+                            y: price,
+                          })),
+                          borderColor: "rgb(255, 99, 132)",
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                      ],
+                    }}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
