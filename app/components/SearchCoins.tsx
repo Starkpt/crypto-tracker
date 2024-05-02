@@ -12,18 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import _, { debounce } from "lodash";
-import Image from "next/image";
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LineElement,
   LinearScale,
   PointElement,
-  LineElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
+import _, { debounce } from "lodash";
+import Image from "next/image";
 import { Line } from "react-chartjs-2";
 
 import starFilled from "@/public/star-filled.svg";
@@ -179,6 +179,8 @@ export default function SearchCoins({
                 </TableCell>
                 <TableCell>
                   <Line
+                    width={100}
+                    height={20}
                     options={{
                       responsive: true,
                       scales: {
@@ -202,7 +204,6 @@ export default function SearchCoins({
                       datasets: [
                         {
                           type: "line",
-                          // label: "Dataset 1",
                           data: coin.sparkline_in_7d?.price.map((price, id) => ({
                             x: "Hour " + id,
                             y: price,
