@@ -1,3 +1,4 @@
+// LIBRARIES
 import { PressEvent } from "@react-aria/interactions";
 
 export const handleTrackedCoin = (e: PressEvent, setTrackedCoins) => {

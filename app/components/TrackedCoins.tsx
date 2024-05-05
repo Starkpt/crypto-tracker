@@ -1,5 +1,7 @@
+// REACT
 import { useMemo } from "react";
 
+// LIBRARIES
 import {
   Button,
   Spinner,
@@ -13,11 +15,14 @@ import {
 import { PressEvent, usePress } from "@react-aria/interactions";
 import Image from "next/image";
 
+// UTILS
+import { handleTrackedCoin } from "@/app/utils/handleTrackedCoins";
+
+// TYPES
+import { ICurrency, IMarketCoin } from "@/app/types/types";
+
+// RESOURCES
 import star from "@/public/star-filled.svg";
-
-import { ICurrency, IMarketCoin } from "../types/types";
-
-import { handleTrackedCoin } from "../utils/handleTrackedCoins";
 
 export default function TrackedCoins({
   data,
@@ -67,6 +72,7 @@ export default function TrackedCoins({
           {coins?.map((coin: any, id: number) => (
             <TableRow key={id}>
               <TableCell width={20} className="p-1">
+                {/* @ts-ignore */}
                 <Button
                   id={coin?.id}
                   isIconOnly

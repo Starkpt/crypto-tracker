@@ -1,38 +1,37 @@
-import { useMemo } from "react";
-
-import _ from "lodash";
+// LIBRARIES
 import useSWR from "swr";
 
-import { fetcher as APIFetcher } from "../utils/fetcher";
+// UTILS
+import { APIFetcher } from "@/app/utils/APIFetcher";
 
-import { ICurrency } from "../types/types";
-const defaultFetcherOptions = { refreshInterval: 60000 };
-
-const getURL = ({ selectedCurrency = "eur" }: { selectedCurrency: ICurrency | string }) => {
-  const searchParams = new URLSearchParams({
-    vs_currency: selectedCurrency.value || selectedCurrency,
-    sparkline: "true",
-  }).toString();
-
-  return `/api/markets?${searchParams}`;
-};
+// TYPES
+import { ICurrency } from "@/app/types/types";
+import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 function useFetchMarkets(
   {
-    selectedCurrency,
+    selectedCurrency = selectableCurrencies[1],
+    queryParams,
     fetcher = APIFetcher,
-    fetcherOptions = defaultFetcherOptions,
+    fetcherOptions = { refreshInterval: 60000 },
   }: {
-    selectedCurrency: ICurrency;
+    selectedCurrency?: ICurrency;
+    queryParams?: object;
     fetcher?: any;
     fetcherOptions?: object;
   },
   delay?: number
 ) {
+  const searchParams = new URLSearchParams({
+    vs_currency: selectedCurrency.value,
+    sparkline: "true",
+    ...queryParams,
+  });
+
   const { data, error, isValidating, isLoading, mutate } = useSWR<any[]>(
-    getURL({ selectedCurrency: selectedCurrency.value }),
+    `/api/markets?${searchParams.toString()}`,
     fetcher,
-    fetcherOptions
+    { ...(fetcherOptions || { refreshInterval: delay }) }
   );
 
   return {

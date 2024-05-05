@@ -1,17 +1,13 @@
-import { useRef } from "react";
+// LIBRARIES
 import useSWR from "swr";
-import { fetcher as APIFetcher } from "../utils/fetcher";
-import { IMarketCoin } from "../types/types";
+
+// UTILS
+import { APIFetcher } from "@/app/utils/APIFetcher";
+
+// TYPES
+import { ISearchCryptos } from "@/app/types/types";
 
 const searchURL = "/api/search";
-
-const getURL = ({ query }: { query: string }) => {
-  const searchParams = query ? new URLSearchParams({ query }).toString() : "";
-
-  const searchPathURL = searchParams ? `?${searchParams}` : "";
-
-  return `${searchURL}${searchPathURL}`;
-};
 
 function useSearchCoins({
   query,
@@ -21,8 +17,10 @@ function useSearchCoins({
   query?: any; // requires values to be memoized with a useMemo
   fetcher?: any;
 }) {
-  const { data, error, isValidating, isLoading, mutate } = useSWR<any[]>(
-    getURL({ query }),
+  const searchParams = query ? `?${new URLSearchParams({ query }).toString()}` : "";
+
+  const { data, error, isValidating, isLoading, mutate } = useSWR<ISearchCryptos>(
+    `${searchURL}${searchParams}`,
     fetcher
   );
 

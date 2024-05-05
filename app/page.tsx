@@ -1,39 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+// LIBRARIES
+import { useEffect, useState } from "react";
 
-import NavigationBar from "./components/NavigationBar";
-import SearchCoins from "./components/SearchCoins";
-import TrackedCoins from "./components/TrackedCoins";
-import TrendingCoins from "./components/TrendingCoins";
+// COMPONENTS
+import NavigationBar from "@/app/components/NavigationBar";
+import SearchCoins from "@/app/components/SearchCoins";
+import TrackedCoins from "@/app/components/TrackedCoins";
+import TrendingCoins from "@/app/components/TrendingCoins";
 
-import { selectableCurrencies } from "./utils/selectableCurrencies";
+// HOOKS
+import useFetchMarkets from "@/app/hooks/useFetchData";
 
-import useFetchMarkets from "./hooks/useFetchData";
-import { ICurrency } from "./types/types";
+// UTILS
+import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
+
+// TYPES
+import { ICurrency } from "@/app/types/types";
 
 export default function Home() {
-  const defaultCurrency: ICurrency = useMemo(
+  const [trackedCoins, setTrackedCoins] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(
     () =>
-      selectableCurrencies.find((currency) => currency.value === "eur") || selectableCurrencies[1],
-    []
+      selectableCurrencies.find((currency) => currency.value === "eur") || selectableCurrencies[0]
   );
 
-  const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(defaultCurrency);
-
-  const [trackedCoins, setTrackedCoins] = useState([]);
-
-  const { data, isLoading, isValidating } = useFetchMarkets({ selectedCurrency }, 2000);
+  // Custom hook fetching data
+  const { data } = useFetchMarkets({ selectedCurrency }, 2000);
 
   useEffect(() => {
-    const localCoins = localStorage.getItem("trackedCoins");
+    const storedTrackedCoins = localStorage.getItem("trackedCoins");
 
-    if (localCoins) {
-      setTrackedCoins(JSON.parse(localCoins));
+    if (storedTrackedCoins) {
+      setTrackedCoins(JSON.parse(storedTrackedCoins));
     }
   }, []);
-
-  console.log(trackedCoins);
 
   return (
     <div className="h-screen">
@@ -47,19 +48,18 @@ export default function Home() {
           <div className="flex flex-col gap-6 lg:w-96">
             <TrendingCoins selectedCurrency={selectedCurrency} />
 
-            {trackedCoins.length ? (
+            {trackedCoins.length > 0 && (
               <TrackedCoins
                 data={data}
                 selectedCurrency={selectedCurrency}
                 setTrackedCoins={setTrackedCoins}
                 trackedCoins={trackedCoins}
               />
-            ) : (
-              <></>
             )}
           </div>
 
           <SearchCoins
+            // @ts-ignore
             data={data}
             selectedCurrency={selectedCurrency}
             setTrackedCoins={setTrackedCoins}

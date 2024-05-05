@@ -1,5 +1,7 @@
-import { ChangeEventHandler, useMemo, useState } from "react";
+// REACT
+import { useMemo, useState } from "react";
 
+// LIBRARIES
 import {
   Button,
   Input,
@@ -23,21 +25,26 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import _, { debounce } from "lodash";
+import _ from "lodash";
 import Image from "next/image";
 import { Line } from "react-chartjs-2";
 
+// HOOKS
+import useSearchCoins from "@/app/hooks/useSearchCoins";
+
+// UTILS
+import { handleTrackedCoin } from "@/app/utils/handleTrackedCoins";
+
+// TYPES
+import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "@/app/types/types";
+
+// RESOURCES
 import starFilled from "@/public/star-filled.svg";
 import starOutlined from "@/public/star-outlined.svg";
-import { SearchIcon } from "./SearchIcon";
-
-import useSearchCoins from "../hooks/useSearchCoins";
-
-import { handleTrackedCoin } from "../utils/handleTrackedCoins";
-
-import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
+import { SearchIcon } from "@/public/SearchIcon";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
 function attributeHourMarksToValues(values: (number | string)[]) {
   // Initialize an array to store the attributed hour marks
   const attributedValues = [];
@@ -74,6 +81,12 @@ function attributeHourMarksToValues(values: (number | string)[]) {
   return attributedValues;
 }
 
+const chartOptions = {
+  maintainAspectRatio: false,
+  scales: { x: { display: false, beginAtZero: false }, y: { display: false } },
+  plugins: { title: { display: false }, legend: { display: false } },
+};
+
 export default function SearchCoins({
   selectedCurrency,
   setTrackedCoins,
@@ -96,20 +109,18 @@ export default function SearchCoins({
     query: useMemo(() => searchValue, [searchValue]),
   });
 
-  // Handlers
   const handleSelectPage = (page: number) => {
     setPage(page);
     setCoinsListIndex(page - 1);
   };
 
-  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
     handleSelectPage(1);
   };
 
-  const debouncedOnChange = debounce(handleOnChange, 1800);
+  const debouncedOnChange = useMemo(() => _.debounce(handleOnChange, 1800), []);
 
-  // Coin Search
   const trackedCoins = localStorage.getItem("trackedCoins");
 
   const coinSearchList: ICoinSearch[][] = useMemo(() => {
@@ -169,9 +180,7 @@ export default function SearchCoins({
               />
             </div>
           }
-          classNames={{
-            wrapper: "min-h-[222px] rounded-small",
-          }}
+          classNames={{ wrapper: "min-h-[222px] rounded-small" }}
         >
           <TableHeader>
             <TableColumn key="track"> </TableColumn>
@@ -184,6 +193,7 @@ export default function SearchCoins({
             {coinSearchList?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
+                  {/* @ts-ignore-next-line */}
                   <Button
                     id={coin.id}
                     isIconOnly
@@ -191,11 +201,12 @@ export default function SearchCoins({
                     className="flex bg-transparent hover:bg-purple rounded-sm"
                     {...pressProps}
                   >
-                    {coin.isTracked ? (
-                      <Image src={starFilled} alt="Tracked" width={25} height={25} />
-                    ) : (
-                      <Image src={starOutlined} alt="Untracked" width={25} height={25} />
-                    )}
+                    <Image
+                      src={coin.isTracked ? starFilled : starOutlined}
+                      alt={coin.isTracked ? "Tracked" : "Untracked"}
+                      width={25}
+                      height={25}
+                    />
                   </Button>
                 </TableCell>
                 <TableCell className="flex gap-2">
@@ -212,33 +223,12 @@ export default function SearchCoins({
                 <TableCell className="max-w-28 lg:max-w-48">
                   <Line
                     height={20}
-                    options={{
-                      maintainAspectRatio: false,
-                      scales: {
-                        x: {
-                          display: false,
-                          beginAtZero: false,
-                        },
-                        y: {
-                          display: false,
-                        },
-                      },
-                      plugins: {
-                        title: {
-                          display: false,
-                        },
-                        legend: {
-                          display: false,
-                        },
-                      },
-                    }}
+                    options={chartOptions}
                     data={{
                       datasets: [
                         {
-                          type: "line",
                           data: attributeHourMarksToValues(coin?.sparkline_in_7d?.price || []),
-                          borderColor: "rgb(255, 99, 132)",
-                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                          borderColor: "#3f3cbb",
                         },
                       ],
                     }}

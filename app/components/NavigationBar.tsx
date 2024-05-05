@@ -1,15 +1,18 @@
 "use client";
 
+// LIBRARIES
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/react";
 
-import { INavigationBar } from "../types/types";
+// TYPES
+import { INavigationBar } from "@/app/types/types";
 
-import { selectableCurrencies as currencies } from "../utils/selectableCurrencies";
+// UTILS
+import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 export default function NavigationBar({ selectedCurrency, setSelectedCurrency }: INavigationBar) {
-  const selectCurrency = (e: any) => {
-    // const selectCurrency = (e: ChangeEvent<HTMLInputElement>) => {
-    const currencyItem = currencies.find((currency) => currency.value === e.target.value);
+  const selectCurrency = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    const currencyItem = selectableCurrencies.find((currency) => currency.value === selectedValue);
 
     setSelectedCurrency(currencyItem);
   };
@@ -31,9 +34,9 @@ export default function NavigationBar({ selectedCurrency, setSelectedCurrency }:
             name="currency"
             id="currency"
             onChange={selectCurrency}
-            defaultValue={selectedCurrency.value}
+            value={selectedCurrency.value}
           >
-            {currencies.map((currency) => (
+            {selectableCurrencies.map((currency) => (
               <option key={currency.id} value={currency.value}>
                 {currency.symbol} {currency.name}
               </option>

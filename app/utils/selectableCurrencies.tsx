@@ -1,4 +1,4 @@
-import { ICurrency } from "../types/types";
+import { ICurrency } from "@/app/types/types";
 
 export const selectableCurrencies: ICurrency[] = [
   {
