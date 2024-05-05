@@ -18,7 +18,6 @@ export const handleTrackedCoin = (e: PressEvent, setTrackedCoins) => {
 
   if (trackedCoinsJSON) {
     trackedCoins = JSON.parse(trackedCoinsJSON);
-    console.log(trackedCoins);
   }
 
   const updatedTrackedCoins = toggleCoinTracking(trackedCoins, coinId);

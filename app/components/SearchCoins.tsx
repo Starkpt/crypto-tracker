@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { PressEvent, usePress } from "@react-aria/interactions";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -32,12 +33,46 @@ import { SearchIcon } from "./SearchIcon";
 
 import useSearchCoins from "../hooks/useSearchCoins";
 
-import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
-
-import { PressEvent, usePress } from "@react-aria/interactions";
 import { handleTrackedCoin } from "../utils/handleTrackedCoins";
 
+import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "../types/types";
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+function attributeHourMarksToValues(values: (number | string)[]) {
+  // Initialize an array to store the attributed hour marks
+  const attributedValues = [];
+
+  // Start from the last index and decrement by 1 for each value
+  let currentHour = new Date();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    // Format the current hour mark
+    const formattedTime = new Intl.DateTimeFormat(navigator.language, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+      .format(currentHour)
+      .replace(/,\\s?/g, "-")
+      .replace(",", "");
+
+    // Assign the current hour mark and value to the current entry
+    attributedValues[i] = {
+      x: formattedTime,
+      y: values[i],
+    };
+
+    // Decrement the hour mark by 1
+    currentHour = new Date(currentHour.getTime() - 60 * 60 * 1000);
+  }
+
+  // Return the array of attributed values
+  return attributedValues;
+}
 
 export default function SearchCoins({
   selectedCurrency,
@@ -145,10 +180,7 @@ export default function SearchCoins({
             <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
             <TableColumn key="chart">CHART</TableColumn>
           </TableHeader>
-          <TableBody
-            // items={searchedList?.[page]}
-            emptyContent={<Spinner />}
-          >
+          <TableBody emptyContent={<Spinner />}>
             {coinSearchList?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
@@ -177,15 +209,15 @@ export default function SearchCoins({
                 <TableCell>
                   {selectedCurrency.symbol} {coin.price_change_24h}
                 </TableCell>
-                <TableCell>
+                <TableCell className="max-w-28 lg:max-w-48">
                   <Line
-                    width={100}
                     height={20}
                     options={{
-                      responsive: true,
+                      maintainAspectRatio: false,
                       scales: {
                         x: {
                           display: false,
+                          beginAtZero: false,
                         },
                         y: {
                           display: false,
@@ -204,10 +236,7 @@ export default function SearchCoins({
                       datasets: [
                         {
                           type: "line",
-                          data: coin.sparkline_in_7d?.price.map((price, id) => ({
-                            x: "Hour " + id,
-                            y: price,
-                          })),
+                          data: attributeHourMarksToValues(coin?.sparkline_in_7d?.price || []),
                           borderColor: "rgb(255, 99, 132)",
                           backgroundColor: "rgba(255, 99, 132, 0.5)",
                         },
