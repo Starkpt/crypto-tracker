@@ -96,7 +96,6 @@ export default function SearchCoins({
   setTrackedCoins: any;
   data: IMarketCoin[];
 }) {
-  // TODO: improve pagination index logic
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -105,10 +104,16 @@ export default function SearchCoins({
     onPress: (e: PressEvent) => handleTrackedCoin(e, setTrackedCoins),
   });
 
-  const { data: searchedCoins } = useSearchCoins({
+  const {
+    data: searchedCoins,
+    isLoading,
+    isValidating,
+  } = useSearchCoins({
+    selectedCurrency,
     query: useMemo(() => searchValue, [searchValue]),
   });
 
+  // Handlers
   const handleSelectPage = (page: number) => {
     setPage(page);
     setCoinsListIndex(page - 1);
@@ -120,30 +125,6 @@ export default function SearchCoins({
   };
 
   const debouncedOnChange = useMemo(() => _.debounce(handleOnChange, 1800), []);
-
-  const trackedCoins = localStorage.getItem("trackedCoins");
-
-  const coinSearchList: ICoinSearch[][] = useMemo(() => {
-    const ITEMS_PER_PAGE = 10;
-    const trackedCoinsJSON = trackedCoins ? JSON.parse(trackedCoins) : [];
-
-    if (!data) return [];
-
-    let filteredList: ICoinSearch[] = data;
-
-    if (searchedCoins?.length) {
-      filteredList = data.filter((coin: IMarketCoin) =>
-        searchedCoins.some((searchedCoin: ISearchedCoins) => searchedCoin.id === coin.id)
-      );
-    }
-
-    filteredList = data.map((coin: IMarketCoin) => ({
-      isTracked: trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id),
-      ...coin,
-    }));
-
-    return _.chunk(filteredList, ITEMS_PER_PAGE);
-  }, [data, searchedCoins, trackedCoins]);
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -175,7 +156,7 @@ export default function SearchCoins({
                 color="secondary"
                 page={page}
                 initialPage={page}
-                total={coinSearchList?.length}
+                total={searchedCoins?.length}
                 onChange={handleSelectPage}
               />
             </div>
@@ -189,8 +170,8 @@ export default function SearchCoins({
             <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
             <TableColumn key="chart">CHART</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={<Spinner />}>
-            {coinSearchList?.[coinsListIndex]?.map((coin) => (
+          <TableBody emptyContent={<Spinner />} isLoading={isValidating}>
+            {searchedCoins?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
                   {/* @ts-ignore-next-line */}
@@ -202,23 +183,29 @@ export default function SearchCoins({
                     {...pressProps}
                   >
                     <Image
-                      src={coin.isTracked ? starFilled : starOutlined}
-                      alt={coin.isTracked ? "Tracked" : "Untracked"}
+                      src={coin?.isTracked ? starFilled : starOutlined}
+                      alt={coin?.isTracked ? "Tracked" : "Untracked"}
                       width={25}
                       height={25}
                     />
                   </Button>
                 </TableCell>
                 <TableCell className="flex gap-2">
-                  <Image src={coin.image} alt={coin.name} width={25} height={25} />
+                  <Image
+                    src={coin.image}
+                    alt={coin.name}
+                    width={25}
+                    height={25}
+                    style={{ width: "25px", height: "25px" }}
+                  />
                   <p className="font-medium">{coin.name}</p>
                   <p className="text-metal uppercase">{coin.symbol}</p>
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-right">
                   {selectedCurrency.symbol} {coin.current_price}
                 </TableCell>
-                <TableCell>
-                  {selectedCurrency.symbol} {coin.price_change_24h}
+                <TableCell className="text-right">
+                  {selectedCurrency.symbol} {coin.price_change_24h.toFixed(6)}
                 </TableCell>
                 <TableCell className="max-w-28 lg:max-w-48">
                   <Line

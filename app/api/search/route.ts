@@ -5,9 +5,14 @@ const options = { method: "GET", headers: { accept: "application/json" } };
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
-  const res = await fetch(`${process.env.GECKO_API_URL_SEARCH}?${searchParams}`, options);
+  const marketsRes = await fetch(
+    `${process.env.GECKO_API_URL_MARKETS}?vs_currency=eur&sparkline=true`,
+    options
+  );
+  const marketsData = await marketsRes.json();
 
-  const data = await res.json();
+  const searchRes = await fetch(`${process.env.GECKO_API_URL_SEARCH}?${searchParams}`, options);
+  const data = await searchRes.json();
 
-  return Response.json(data);
+  return Response.json({ data, marketsData });
 }
