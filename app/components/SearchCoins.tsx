@@ -34,10 +34,10 @@ import useSearchCoins from "@/app/hooks/useSearchCoins";
 
 // UTILS
 import { attributeHoursToChartData } from "@/app/utils/attributeHoursToChartData";
-import { toogleTrackedCoin } from "@/app/utils/toogleTrackedCoin";
+import { toggleTrackedCoin } from "@/app/utils/toggleTrackedCoin";
 
 // TYPES
-import { ICurrency } from "@/app/types/types";
+import { ICoinSearch, ICurrency, IMarketCoin } from "@/app/types/types";
 
 // RESOURCES
 import { SearchIcon } from "@/public/SearchIcon";
@@ -55,21 +55,26 @@ const chartOptions = {
 export default function SearchCoins({
   selectedCurrency,
   setTrackedCoins,
+  trackedCoins,
+  data,
 }: {
   selectedCurrency: ICurrency;
   setTrackedCoins: any;
+  trackedCoins: { id: string }[];
+  data: IMarketCoin[];
 }) {
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>("");
 
   let { pressProps } = usePress({
-    onPress: (e: PressEvent) => toogleTrackedCoin(e, setTrackedCoins),
+    onPress: (e: PressEvent) => toggleTrackedCoin(e, setTrackedCoins),
   });
 
   const { data: searchedCoins, isLoading } = useSearchCoins({
     selectedCurrency,
     searchValue: useMemo(() => searchValue, [searchValue]),
+    trackedCoins: useMemo(() => trackedCoins, [trackedCoins]),
   });
 
   // Handlers
@@ -84,6 +89,14 @@ export default function SearchCoins({
   };
 
   const debouncedOnChange = useMemo(() => _.debounce(handleOnChange, 1800), []);
+
+  const coins: ICoinSearch[][] = useMemo(() => {
+    if (!searchValue) {
+      return _.chunk(data, 10);
+    } else {
+      return searchedCoins;
+    }
+  }, [data, searchValue, searchedCoins]);
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -130,7 +143,7 @@ export default function SearchCoins({
             <TableColumn key="chart">CHART</TableColumn>
           </TableHeader>
           <TableBody emptyContent={<Spinner />} isLoading={isLoading}>
-            {searchedCoins?.[coinsListIndex]?.map((coin) => (
+            {coins?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
                   {/* @ts-ignore-next-line */}

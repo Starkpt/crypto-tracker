@@ -10,19 +10,27 @@ import { APIFetcher } from "@/app/utils/APIFetcher";
 import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 // TYPES
-import { ICoinSearch, ICurrency, IMarketCoin, ISearchCryptos } from "@/app/types/types";
+import {
+  IAPIFetcher,
+  ICoinSearch,
+  ICurrency,
+  IMarketCoin,
+  ISearchCryptos,
+} from "@/app/types/types";
 
 const ITEMS_PER_PAGE = 10;
 
 function useSearchCoins({
   selectedCurrency = selectableCurrencies[1],
   searchValue = "",
+  trackedCoins,
   fetcher = APIFetcher,
 }: // coinsList,
 {
   selectedCurrency?: ICurrency;
-  searchValue?: any; // requires values to be memoized with a useMemo
-  fetcher?: any;
+  searchValue?: string | "" | undefined;
+  trackedCoins?: any[];
+  fetcher?: IAPIFetcher;
 }) {
   const searchParams = `?${new URLSearchParams({
     query: searchValue,
@@ -41,12 +49,6 @@ function useSearchCoins({
     fetcher
   );
 
-  const trackedCoins = localStorage.getItem("trackedCoins");
-  const trackedCoinsJSON = useMemo(
-    () => (trackedCoins ? JSON.parse(trackedCoins) : []),
-    [trackedCoins]
-  );
-
   const coinSearchList = useMemo(() => {
     if (!searchCryptos?.coinsSearch?.coins?.length)
       return _.chunk(searchCryptos?.markets, ITEMS_PER_PAGE);
@@ -55,7 +57,7 @@ function useSearchCoins({
       if (searchCryptos.coinsSearch.coins.some((searchedCoin) => searchedCoin.id === coin.id)) {
         acc.push({
           ...coin,
-          isTracked: trackedCoinsJSON.some((item: { id: string }) => item.id === coin.id),
+          isTracked: trackedCoins?.some((item: { id: string }) => item.id === coin.id),
         });
       }
 
@@ -63,7 +65,7 @@ function useSearchCoins({
     }, []);
 
     return _.chunk(filteredList, ITEMS_PER_PAGE);
-  }, [searchCryptos, trackedCoinsJSON]);
+  }, [searchCryptos, trackedCoins]);
 
   return {
     data: coinSearchList,

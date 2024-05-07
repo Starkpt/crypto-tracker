@@ -1,7 +1,7 @@
 "use client";
 
-// LIBRARIES
-import { useEffect, useState } from "react";
+// REACT
+import { useEffect, useMemo, useState } from "react";
 
 // COMPONENTS
 import NavigationBar from "@/app/components/NavigationBar";
@@ -26,10 +26,16 @@ export default function Home() {
   );
 
   // Custom hook fetching data
-  const { data } = useFetchMarkets({ selectedCurrency }, 2000);
+  const { data } = useFetchMarkets(
+    {
+      selectedCurrency,
+      trackedCoins: useMemo(() => trackedCoins, [trackedCoins]),
+    },
+    2000
+  );
 
   useEffect(() => {
-    const storedTrackedCoins = localStorage.getItem("trackedCoins");
+    const storedTrackedCoins = localStorage?.getItem("trackedCoins");
 
     if (storedTrackedCoins) {
       setTrackedCoins(JSON.parse(storedTrackedCoins));
@@ -62,6 +68,7 @@ export default function Home() {
             // @ts-ignore
             data={data}
             selectedCurrency={selectedCurrency}
+            trackedCoins={trackedCoins}
             setTrackedCoins={setTrackedCoins}
           />
         </div>
