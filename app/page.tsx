@@ -16,10 +16,10 @@ import useFetchMarkets from "@/app/hooks/useFetchMarkets";
 import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 // TYPES
-import { ICurrency } from "@/app/types/types";
+import { ICurrency, ITrackedCoin } from "@/app/types/types";
 
 export default function Home() {
-  const [trackedCoins, setTrackedCoins] = useState([]);
+  const [trackedCoins, setTrackedCoins] = useState<ITrackedCoin[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<ICurrency>(
     () =>
       selectableCurrencies.find((currency) => currency.value === "eur") || selectableCurrencies[0]
@@ -56,7 +56,7 @@ export default function Home() {
 
             {trackedCoins.length > 0 && (
               <TrackedCoins
-                data={data}
+                marketCoins={data}
                 selectedCurrency={selectedCurrency}
                 setTrackedCoins={setTrackedCoins}
                 trackedCoins={trackedCoins}
@@ -65,7 +65,6 @@ export default function Home() {
           </div>
 
           <SearchCoins
-            // @ts-ignore
             data={data}
             selectedCurrency={selectedCurrency}
             trackedCoins={trackedCoins}

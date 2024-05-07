@@ -7,6 +7,7 @@ import useSWR from "swr";
 
 // UTILS
 import { APIFetcher } from "@/app/utils/APIFetcher";
+import { TABLE_ITEMS_PER_PAGE } from "@/app/utils/misc";
 import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 // TYPES
@@ -17,8 +18,6 @@ import {
   IMarketCoin,
   ISearchCryptos,
 } from "@/app/types/types";
-
-const ITEMS_PER_PAGE = 10;
 
 function useSearchCoins({
   selectedCurrency = selectableCurrencies[1],
@@ -51,7 +50,7 @@ function useSearchCoins({
 
   const coinSearchList = useMemo(() => {
     if (!searchCryptos?.coinsSearch?.coins?.length)
-      return _.chunk(searchCryptos?.markets, ITEMS_PER_PAGE);
+      return _.chunk(searchCryptos?.markets, TABLE_ITEMS_PER_PAGE);
 
     const filteredList = searchCryptos.markets?.reduce((acc: ICoinSearch[], coin: ICoinSearch) => {
       if (searchCryptos.coinsSearch.coins.some((searchedCoin) => searchedCoin.id === coin.id)) {
@@ -64,7 +63,7 @@ function useSearchCoins({
       return acc;
     }, []);
 
-    return _.chunk(filteredList, ITEMS_PER_PAGE);
+    return _.chunk(filteredList, TABLE_ITEMS_PER_PAGE);
   }, [searchCryptos, trackedCoins]);
 
   return {

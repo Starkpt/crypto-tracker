@@ -19,27 +19,29 @@ import Image from "next/image";
 import { toggleTrackedCoin } from "@/app/utils/toggleTrackedCoin";
 
 // TYPES
-import { ICurrency, IMarketCoin } from "@/app/types/types";
+import { ICurrency, IMarketCoin, ITrackedCoin } from "@/app/types/types";
 
 // RESOURCES
 import star from "@/public/star-filled.svg";
 
 export default function TrackedCoins({
-  data,
+  marketCoins,
   selectedCurrency,
   setTrackedCoins,
   trackedCoins,
 }: {
-  data: IMarketCoin[];
+  marketCoins: IMarketCoin[];
   selectedCurrency: ICurrency;
-  setTrackedCoins: any;
-  trackedCoins: { id: string }[];
+  setTrackedCoins: (value: ITrackedCoin[]) => void;
+  trackedCoins: ITrackedCoin[];
 }) {
-  const coins = useMemo(() => {
-    return trackedCoins.map((coin) =>
-      data?.find((dataCoin: IMarketCoin) => dataCoin.id === coin.id)
-    );
-  }, [data, trackedCoins]);
+  const coins: IMarketCoin[] | any[] = useMemo(
+    () =>
+      trackedCoins.map((coin: ITrackedCoin) =>
+        marketCoins?.find((marketCoin: IMarketCoin) => marketCoin.id === coin.id)
+      ),
+    [marketCoins, trackedCoins]
+  );
 
   let { pressProps } = usePress({
     onPress: (e: PressEvent) => toggleTrackedCoin(e, setTrackedCoins),
@@ -69,7 +71,7 @@ export default function TrackedCoins({
             </TableRow>
           }
         >
-          {coins?.map((coin: any, id: number) => (
+          {coins?.map((coin: IMarketCoin, id: number) => (
             <TableRow key={id}>
               <TableCell width={20} className="p-1">
                 {/* @ts-ignore */}

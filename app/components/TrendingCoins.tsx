@@ -10,9 +10,11 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 
-// TYPES
+// HOOKS
 import useFetchMarkets from "@/app/hooks/useFetchMarkets";
-import { ICurrency } from "@/app/types/types";
+
+// TYPES
+import { ICoinSearch, ICurrency } from "@/app/types/types";
 
 export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
   const { data, isValidating } = useFetchMarkets({
@@ -34,7 +36,7 @@ export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: 
         </TableHeader>
         <TableBody isLoading={isValidating} emptyContent={<Spinner />}>
           {data ? (
-            data?.map((coin: any, id: number) => (
+            data?.map((coin: ICoinSearch, id: number) => (
               <TableRow key={id}>
                 <TableCell>{coin.market_cap_rank}</TableCell>
                 <TableCell className="flex gap-2">

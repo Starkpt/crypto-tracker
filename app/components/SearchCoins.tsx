@@ -1,5 +1,5 @@
 // REACT
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 // LIBRARIES
 import {
@@ -34,10 +34,11 @@ import useSearchCoins from "@/app/hooks/useSearchCoins";
 
 // UTILS
 import { attributeHoursToChartData } from "@/app/utils/attributeHoursToChartData";
+import { TABLE_ITEMS_PER_PAGE } from "@/app/utils/misc";
 import { toggleTrackedCoin } from "@/app/utils/toggleTrackedCoin";
 
 // TYPES
-import { ICoinSearch, ICurrency, IMarketCoin } from "@/app/types/types";
+import { ICoinSearch, ICurrency, IMarketCoin, ITrackedCoin } from "@/app/types/types";
 
 // RESOURCES
 import { SearchIcon } from "@/public/SearchIcon";
@@ -59,8 +60,8 @@ export default function SearchCoins({
   data,
 }: {
   selectedCurrency: ICurrency;
-  setTrackedCoins: any;
-  trackedCoins: { id: string }[];
+  setTrackedCoins: (value: ITrackedCoin[]) => void;
+  trackedCoins: ITrackedCoin[];
   data: IMarketCoin[];
 }) {
   const [page, setPage] = useState<number>(1);
@@ -90,13 +91,10 @@ export default function SearchCoins({
 
   const debouncedOnChange = useMemo(() => _.debounce(handleOnChange, 1800), []);
 
-  const coins: ICoinSearch[][] = useMemo(() => {
-    if (!searchValue) {
-      return _.chunk(data, 10);
-    } else {
-      return searchedCoins;
-    }
-  }, [data, searchValue, searchedCoins]);
+  const coins: ICoinSearch[][] = useMemo(
+    () => (!searchValue ? _.chunk(data, TABLE_ITEMS_PER_PAGE) : searchedCoins),
+    [data, searchValue, searchedCoins]
+  );
 
   return (
     <div className="flex flex-col gap-3 w-full">

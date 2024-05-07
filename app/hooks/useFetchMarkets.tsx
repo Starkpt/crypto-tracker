@@ -1,6 +1,3 @@
-// REACT
-import { useMemo } from "react";
-
 // LIBRARIES
 import useSWR from "swr";
 
@@ -9,7 +6,7 @@ import { APIFetcher } from "@/app/utils/APIFetcher";
 import { selectableCurrencies } from "@/app/utils/selectableCurrencies";
 
 // TYPES
-import { IAPIFetcher, ICoinSearch, ICurrency } from "@/app/types/types";
+import { IAPIFetcher, ICoinSearch, ICurrency, ITrackedCoin } from "@/app/types/types";
 
 function useFetchMarkets(
   {
@@ -23,7 +20,7 @@ function useFetchMarkets(
     queryParams?: object;
     fetcher?: IAPIFetcher;
     fetcherOptions?: object;
-    trackedCoins?: any[];
+    trackedCoins?: ITrackedCoin[];
   },
   delay?: number
 ) {
@@ -42,7 +39,7 @@ function useFetchMarkets(
   const filteredList = data?.reduce((acc: ICoinSearch[], coin: ICoinSearch) => {
     acc.push({
       ...coin,
-      isTracked: trackedCoins?.some((item: { id: string }) => item.id === coin.id),
+      isTracked: trackedCoins?.some((item: ITrackedCoin) => item.id === coin.id),
     });
 
     return acc;
