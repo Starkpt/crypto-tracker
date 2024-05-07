@@ -1,7 +1,7 @@
 // LIBRARIES
 import { PressEvent } from "@react-aria/interactions";
 
-export const handleTrackedCoin = (e: PressEvent, setTrackedCoins) => {
+export const toogleTrackedCoin = (e: PressEvent, setTrackedCoins) => {
   const coinId = e.target.id;
   const trackedCoinsJSON = localStorage.getItem("trackedCoins");
 

@@ -33,53 +33,18 @@ import { Line } from "react-chartjs-2";
 import useSearchCoins from "@/app/hooks/useSearchCoins";
 
 // UTILS
-import { handleTrackedCoin } from "@/app/utils/handleTrackedCoins";
+import { attributeHoursToChartData } from "@/app/utils/attributeHoursToChartData";
+import { toogleTrackedCoin } from "@/app/utils/toogleTrackedCoin";
 
 // TYPES
-import { ICoinSearch, ICurrency, IMarketCoin, ISearchedCoins } from "@/app/types/types";
+import { ICurrency } from "@/app/types/types";
 
 // RESOURCES
+import { SearchIcon } from "@/public/SearchIcon";
 import starFilled from "@/public/star-filled.svg";
 import starOutlined from "@/public/star-outlined.svg";
-import { SearchIcon } from "@/public/SearchIcon";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-function attributeHourMarksToValues(values: (number | string)[]) {
-  // Initialize an array to store the attributed hour marks
-  const attributedValues = [];
-
-  // Start from the last index and decrement by 1 for each value
-  let currentHour = new Date();
-
-  for (let i = values.length - 1; i >= 0; i--) {
-    // Format the current hour mark
-    const formattedTime = new Intl.DateTimeFormat(navigator.language, {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    })
-      .format(currentHour)
-      .replace(/,\\s?/g, "-")
-      .replace(",", "");
-
-    // Assign the current hour mark and value to the current entry
-    attributedValues[i] = {
-      x: formattedTime,
-      y: values[i],
-    };
-
-    // Decrement the hour mark by 1
-    currentHour = new Date(currentHour.getTime() - 60 * 60 * 1000);
-  }
-
-  // Return the array of attributed values
-  return attributedValues;
-}
 
 const chartOptions = {
   maintainAspectRatio: false,
@@ -90,25 +55,19 @@ const chartOptions = {
 export default function SearchCoins({
   selectedCurrency,
   setTrackedCoins,
-  data,
 }: {
   selectedCurrency: ICurrency;
   setTrackedCoins: any;
-  data: IMarketCoin[];
 }) {
   const [page, setPage] = useState<number>(1);
   const [coinsListIndex, setCoinsListIndex] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>("");
 
   let { pressProps } = usePress({
-    onPress: (e: PressEvent) => handleTrackedCoin(e, setTrackedCoins),
+    onPress: (e: PressEvent) => toogleTrackedCoin(e, setTrackedCoins),
   });
 
-  const {
-    data: searchedCoins,
-    isLoading,
-    isValidating,
-  } = useSearchCoins({
+  const { data: searchedCoins, isLoading } = useSearchCoins({
     selectedCurrency,
     searchValue: useMemo(() => searchValue, [searchValue]),
   });
@@ -170,7 +129,7 @@ export default function SearchCoins({
             <TableColumn key="change24h">PRICE CHANGE 24h</TableColumn>
             <TableColumn key="chart">CHART</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={<Spinner />} isLoading={isValidating}>
+          <TableBody emptyContent={<Spinner />} isLoading={isLoading}>
             {searchedCoins?.[coinsListIndex]?.map((coin) => (
               <TableRow key={coin.name}>
                 <TableCell width={20} className="p-1">
@@ -214,7 +173,7 @@ export default function SearchCoins({
                     data={{
                       datasets: [
                         {
-                          data: attributeHourMarksToValues(coin?.sparkline_in_7d?.price || []),
+                          data: attributeHoursToChartData(coin?.sparkline_in_7d?.price || []),
                           borderColor: "#3f3cbb",
                         },
                       ],

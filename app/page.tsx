@@ -10,7 +10,7 @@ import TrackedCoins from "@/app/components/TrackedCoins";
 import TrendingCoins from "@/app/components/TrendingCoins";
 
 // HOOKS
-import useFetchMarkets from "@/app/hooks/useFetchData";
+import useFetchMarkets from "@/app/hooks/useFetchMarkets";
 
 // UTILS
 import { selectableCurrencies } from "@/app/utils/selectableCurrencies";

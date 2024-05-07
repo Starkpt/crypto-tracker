@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
   searchParams.forEach((value: string | number, key: string) => {
     // Include only the 'query' parameter in paramsForCoinSearch if it exists
     if (key === "query" && value) paramsForCoinSearch[key] = value;
-
     // Exclude the 'query' parameter from paramsForMarkets
     if (key !== "query") paramsForMarkets[key] = value;
   });

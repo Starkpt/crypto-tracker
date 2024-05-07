@@ -16,7 +16,7 @@ import { PressEvent, usePress } from "@react-aria/interactions";
 import Image from "next/image";
 
 // UTILS
-import { handleTrackedCoin } from "@/app/utils/handleTrackedCoins";
+import { toogleTrackedCoin } from "@/app/utils/toogleTrackedCoin";
 
 // TYPES
 import { ICurrency, IMarketCoin } from "@/app/types/types";
@@ -42,7 +42,7 @@ export default function TrackedCoins({
   }, [data, trackedCoins]);
 
   let { pressProps } = usePress({
-    onPress: (e: PressEvent) => handleTrackedCoin(e, setTrackedCoins),
+    onPress: (e: PressEvent) => toogleTrackedCoin(e, setTrackedCoins),
   });
 
   return (

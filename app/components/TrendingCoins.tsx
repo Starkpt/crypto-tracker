@@ -11,7 +11,7 @@ import {
 import Image from "next/image";
 
 // TYPES
-import useFetchMarkets from "@/app/hooks/useFetchData";
+import useFetchMarkets from "@/app/hooks/useFetchMarkets";
 import { ICurrency } from "@/app/types/types";
 
 export default function TrendingCoins({ selectedCurrency }: { selectedCurrency: ICurrency }) {
