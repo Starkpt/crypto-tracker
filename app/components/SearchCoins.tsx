@@ -110,7 +110,7 @@ export default function SearchCoins({
     isValidating,
   } = useSearchCoins({
     selectedCurrency,
-    query: useMemo(() => searchValue, [searchValue]),
+    searchValue: useMemo(() => searchValue, [searchValue]),
   });
 
   // Handlers
