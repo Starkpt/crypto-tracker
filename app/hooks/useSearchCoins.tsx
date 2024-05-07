@@ -47,6 +47,8 @@ function useSearchCoins({
     [trackedCoins]
   );
 
+  console.log("tst")
+  
   const coinSearchList = useMemo(() => {
     if (!searchCryptos?.coinsSearch?.coins?.length)
       return _.chunk(searchCryptos?.markets, ITEMS_PER_PAGE);
