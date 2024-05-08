@@ -1,9 +1,37 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Crypto Tracker
+
+## Overview
+
+This project is a simple [Next.js](https://nextjs.org/) cryptocurrency price tracker web application with TypeScript
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+Before you begin, ensure you have the following installed on your machine:
+
+Node.js (version 18.18.2 or higher)
+npm (version 10.5.0 or higher) or Yarn (version 1.22.20 or higher)
+
+### Installation
+
+1. Clone the repository to your local machine:
+```bash
+git clone <repository-url>
+```
+2. Navigate into the project directory:
+```bash
+cd <project-directory>
+```
+3. Install dependencies using npm or Yarn:
+```bash
+npm install
+# or
+yarn install
+```
+
+### Development Server
+To run the development server, use one of the following commands:
 ```bash
 npm run dev
 # or
@@ -14,23 +42,14 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The development server will start running at http://localhost:3000. Open this URL in your browser to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Usage
+- Search and track your favorite coins (with LocalStorage persistence)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/580e590a-a6cd-4f46-a3b4-e5cf458655d3)
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/8327b742-5ab5-4d6f-8b59-8291f4a986b6)
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/79987319-ecee-4f83-997a-e5872905e11a)
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/33dbec5f-2886-467a-8838-07d9781c59cb)
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/901873e3-23bc-4be5-8e71-a9528b7b2769)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
