@@ -45,11 +45,20 @@ bun dev
 The development server will start running at http://localhost:3000. Open this URL in your browser to view the application.
 
 ### Usage
-- Search and track your favorite coins (with LocalStorage persistence)
+Search and track your favorite coins (with LocalStorage persistence)
 
+- Initial state of the application
+ 
 ![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/580e590a-a6cd-4f46-a3b4-e5cf458655d3)
-![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/8327b742-5ab5-4d6f-8b59-8291f4a986b6)
+- Searching and tracking coins
+ 
 ![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/79987319-ecee-4f83-997a-e5872905e11a)
+- Tracking coins showing values in dollars($)
+ 
+![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/8327b742-5ab5-4d6f-8b59-8291f4a986b6)
+- Navigating table pages
+ 
 ![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/33dbec5f-2886-467a-8838-07d9781c59cb)
 ![image](https://github.com/Starkpt/crypto-tracker/assets/7763174/901873e3-23bc-4be5-8e71-a9528b7b2769)
+
 
